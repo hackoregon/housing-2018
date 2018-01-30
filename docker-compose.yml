@@ -27,5 +27,13 @@ services:
     networks: ['stack']
     depends_on: ['elasticsearch']
 
+  setup_data:
+    build: build
+    container_name: setup_data
+    volumes: ['./scripts/data-migrations.sh:/usr/local/bin/data-migrations.sh:ro','./data-migrations:/usr/src/app/data-migrations']
+    command: ['/bin/bash', '-c', 'cat /usr/local/bin/data-migrations.sh | tr -d "\r" | bash']
+    environment: ['ELASTIC_PASSWORD=${ELASTIC_PASSWORD}']
+    networks: ['stack']
+    depends_on: ['elasticsearch']
 
 networks: {stack: {}}
