@@ -1,0 +1,16 @@
+# Default Kibana configuration from kibana-docker.
+
+server.name: kibana
+server.host: "0"
+elasticsearch.url: http://elasticsearch:9200
+elasticsearch.username: elastic
+elasticsearch.password: changeme
+xpack.monitoring.ui.container.elasticsearch.enabled: true
+regionmap:
+  layers: 
+    name: "US Metropolitan Statistical Areas"
+    url: "http://localhost/data/cb_2016_us_cbsa_500k.json"
+    fields:
+      name: "properties.NAME"
+      description: "Metropolitan Statistical Area"
+      

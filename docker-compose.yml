@@ -10,6 +10,7 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:${TAG}
     container_name: kibana
+    volumes: ['./kibana.yml:/usr/share/kibana/config/kibana.yml']
     environment:
       - ELASTICSEARCH_USERNAME=elastic
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
@@ -24,13 +25,15 @@ services:
     environment: ['ELASTIC_PASSWORD=${ELASTIC_PASSWORD}']
     depends_on: ['elasticsearch']
 
+  data_store:
+    build: data_store
+    container_name: data_store
+    ports: ['80:80']
+
   setup_data:
-    build: build
+    build: setup_data
     container_name: setup_data
     command: ['/bin/bash', '-c', 'cat /usr/local/bin/data-migrations.sh | tr -d "\r" | bash']
     environment: ['ELASTIC_PASSWORD=${ELASTIC_PASSWORD}']
     depends_on: ['elasticsearch']
 
-  hello:
-    image: karthequian/helloworld:latest
-    ports: ['80:80']
