@@ -2,7 +2,7 @@
 version: '3'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-platinum:${TAG}
+    image: docker.elastic.co/elasticsearch/elasticsearch-platinum:${ELASTIC_VERSION}
     container_name: elasticsearch
     environment: ['http.host=0.0.0.0', 'transport.host=0.0.0.0', 'ELASTIC_PASSWORD=${ELASTIC_PASSWORD}']
     ports: ['9200:9200']

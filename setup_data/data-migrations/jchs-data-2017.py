@@ -3,9 +3,14 @@ import re
 from datetime import datetime
 
 import pandas as pd
+import pytz
+from pytz import timezone
 from six.moves.urllib.request import urlopen
 import elasticsearch
 import elasticsearch.helpers
+
+pacific = timezone('US/Pacific')
+date_fmt = "%Y-%m-%dT%H:%M:%S.000%z"
 
 # specify which rows in the excel sheet are the headers. 0-indexed
 headers = {
@@ -176,8 +181,9 @@ class ImportA1(ElasticImport):
                 value_type = ser_ix[1]
                 value_type = value_type.replace('Millions of', '')
                 if value_type == 'Thousands':
-                    value_type = ''
-                body = { 'time': datetime(ix, 1, 1), 'source': self.source, 'datatype': 'housing market indicators', 'datapoint': key, 'value': val, 'valuetype': value_type }
+                    value_type = 'count'
+                time = datetime(ix, 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': key, 'datapoint': 'United States', 'value': val, 'valuetype': value_type }
                 yield body
 
 
@@ -197,7 +203,8 @@ class ImportA2(ElasticImport):
                     continue
                 val = val * 1000
                 key = ix
-                body = { 'time': datetime(ser_ix[0], 1, 1), 'source': self.source, 'datatype': ser_ix[1] + ' Households', 'datapoint': key, 'value': val, 'valuetype': 'count' }
+                time = datetime(ser_ix[0], 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': ser_ix[1] + ' Households', 'datapoint': key, 'value': val, 'valuetype': 'count' }
                 yield body
 
 
@@ -217,7 +224,8 @@ class ImportW1(ElasticImport):
                 if pd.isnull(val):
                     continue
                 key = ix
-                body = { 'time': datetime(ser_ix[1], 1, 1), 'source': self.source, 'datatype': ser_ix[0], 'datapoint': key, 'value': val, 'valuetype': 'count' }
+                time = datetime(ser_ix[1], 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': ser_ix[0], 'datapoint': key, 'value': val, 'valuetype': 'count' }
                 yield body
 
 
@@ -240,7 +248,8 @@ class ImportW2(ElasticImport):
                 key = keys[0]
                 if key == 'Households':
                     key = 'All'
-                body = { 'time': datetime(int(keys[-1]), 1, 1), 'source': self.source, 'datatype': key + ' Households by Nativity', 'datapoint': ser_ix, 'value': val, 'valuetype': 'count' }
+                time = datetime(int(keys[-1]), 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': key + ' Households by Nativity', 'datapoint': ser_ix, 'value': val, 'valuetype': 'count' }
                 yield body
 
 
@@ -258,7 +267,8 @@ class ImportW3(ElasticImport):
             for ser_ix, val in row.iteritems():
                 if pd.isnull(val):
                     continue
-                body = { 'time': datetime(ix, 1, 1), 'source': self.source, 'datatype': 'Average Real Household Incomes by Income Quintile', 'datapoint': ser_ix, 'value': val, 'valuetype': '2015 Dollars' }
+                time = datetime(ix, 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': 'Average Real Household Incomes by Income Quintile', 'datapoint': ser_ix, 'value': val, 'valuetype': '2015 Dollars' }
                 yield body
 
 
@@ -279,7 +289,8 @@ class ImportW4(ElasticImport):
                 dp = ser_ix[1]
                 if ser_ix[0] == 'All Households':
                     dp = ser_ix[0]
-                body = { 'time': datetime(ix, 1, 1), 'source': self.source, 'datatype': 'Homeownership Rates by Age, Race/Ethnicity, and Region', 'datapoint': dp, 'value': val, 'valuetype': 'Percent' }
+                time = datetime(ix, 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': 'Homeownership Rates by Age, Race/Ethnicity, and Region', 'datapoint': dp, 'value': val, 'valuetype': 'Percent' }
                 yield body
 
 
@@ -302,7 +313,8 @@ class ImportW5(ElasticImport):
                 if key == 'All Households':
                     key = 'Households'
                 dp = ix
-                body = { 'time': datetime(2015, 1, 1), 'source': self.source, 'datatype': ser_ix[1] + ' ' + key, 'datapoint': dp, 'value': val, 'valuetype': 'count' }
+                time = datetime(2015, 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': ser_ix[1] + ' ' + key, 'datapoint': dp, 'value': val, 'valuetype': 'count' }
                 yield body
 
 
@@ -326,7 +338,8 @@ class ImportW6(ElasticImport):
                 dp = ix
                 dp = re.sub('\s\(.+\)', '', dp)
                 dp = '{} {} {}'.format('Total Expenditures', dp, 'Share of Expenditures on Housing')
-                body = { 'time': datetime(2015, 1, 1), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': '2015 dollars' }
+                time = datetime(2015, 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': '2015 dollars' }
                 yield body
 
 
@@ -350,7 +363,8 @@ class ImportW7(ElasticImport):
                     key = ser_ix[1] + ' ' + key
                     key += ' from ' + time
                 dp = ix.replace('Metro Area', '').strip()
-                body = { 'time': datetime(2016, 12, 1), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': '2016 dollars' }
+                time = datetime(2016, 12, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': '2016 dollars' }
                 yield body
 
 
@@ -373,7 +387,8 @@ class ImportW8(ElasticImport):
                     key = 'Median Rent'
                     value_type = '2015 dollars'
                 dp = ix.strip()
-                body = { 'time': datetime(2015, 1, 1), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
+                time = datetime(2015, 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
                 yield body
 
 
@@ -392,7 +407,8 @@ class ImportW9(ElasticImport):
                     continue
                 key = 'Monthly Mortgage Payment on Median Priced Home'
                 dp = ix.strip()
-                body = { 'time': datetime(ser_ix, 1, 1), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': '2016 dollars' }
+                time = datetime(ser_ix, 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': '2016 dollars' }
                 yield body
 
 
@@ -417,7 +433,8 @@ class ImportW10(ElasticImport):
                     key += txt
                     value_type = 'percent'
                 dp = ix.strip()
-                body = { 'time': datetime(2015, 1, 1), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
+                time = datetime(2015, 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
                 yield body
 
 
@@ -436,7 +453,8 @@ class ImportW11(ElasticImport):
                     continue
                 key = 'Median Payment-to-Income Ratio'
                 dp = ix.strip()
-                body = { 'time': datetime(ser_ix, 1, 1), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': 'ratio' }
+                time = datetime(ser_ix, 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': 'ratio' }
                 yield body
 
 
@@ -455,7 +473,8 @@ class ImportW12(ElasticImport):
                     continue
                 key = 'Median Home Price-to-Median Income Ratio'
                 dp = ix.strip()
-                body = { 'time': datetime(ser_ix, 1, 1), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': 'ratio' }
+                time = datetime(ser_ix, 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': 'ratio' }
                 yield body
 
 
@@ -480,7 +499,8 @@ class ImportW13(ElasticImport):
                 else:
                     value_type = 'percent'
                     key += ', Share of All Households'
-                body = { 'time': datetime(2015, 1, 1), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
+                time = datetime(2015, 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
                 yield body
 
 
@@ -503,7 +523,8 @@ class ImportW14(ElasticImport):
                 if ser_ix[0] == 'Median for All Income Groups':
                     key = ser_ix[2] + ', ' + ser_ix[0]
                     value_type = ser_ix[1].lower()
-                body = { 'time': datetime(2015, 1, 1), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
+                time = datetime(2015, 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
                 yield body
 
 
@@ -525,7 +546,8 @@ class ImportW15(ElasticImport):
                 key = '{} {}'.format(ser_ix[2], ser_ix[0].replace('Number of ', '').replace('Total Population in ', ''))
                 if 'Total Population' in ser_ix[0]:
                     key = 'Total Population in ' + key
-                body = { 'time': datetime(ser_ix[1], 1, 1), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
+                time = datetime(ser_ix[1], 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
                 yield body
 
 
@@ -560,7 +582,8 @@ class ImportW16(ElasticImport):
                 if key != 'Sample Size':
                     key = '{}, Real Gross Rents {}'.format(key, ser_ix[1])                
                     
-                body = { 'time': datetime(ix[0], 1, 1), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
+                time = datetime(ix[0], 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
                 yield body
 
 
@@ -581,7 +604,8 @@ class ImportW17(ElasticImport):
                 if not self.is_valid_value(val):
                     continue
                 dp = ix[0].strip() + ': ' + ix[1].strip()
-                body = { 'time': datetime(int(ser_ix.split(', ')[1]), 1, 1), 'source': self.source, 'datatype': 'Continuum of Care Homelessness', 'datapoint': dp, 'value': val, 'valuetype': 'count' }
+                time = datetime(int(ser_ix.split(', ')[1]), 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': 'Continuum of Care Homelessness', 'datapoint': dp, 'value': val, 'valuetype': 'count' }
                 yield body
 
 
@@ -607,7 +631,8 @@ class ImportW18(ElasticImport):
                 value_type = 'count'
                 if 'Percent' in ser_ix:
                     value_type = 'percent'
-                body = { 'time': datetime(year, 1, 1), 'source': self.source, 'datatype': data_type, 'datapoint': dp, 'value': val, 'valuetype': value_type }
+                time = datetime(year, 1, 1, tzinfo=pytz.utc)
+                body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': data_type, 'datapoint': dp, 'value': val, 'valuetype': value_type }
                 yield body
 
 def flatten_search_results(hit):
