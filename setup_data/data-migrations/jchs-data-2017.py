@@ -603,7 +603,7 @@ class ImportW17(ElasticImport):
             for ser_ix, val in row.iteritems():
                 if not self.is_valid_value(val):
                     continue
-                dp = ix[0].strip() + ': ' + ix[1].strip()
+                dp = ix[0].strip()
                 time = datetime(int(ser_ix.split(', ')[1]), 1, 1, tzinfo=pytz.utc)
                 body = { 'time': time.astimezone(pacific).strftime(date_fmt), 'source': self.source, 'datatype': 'Continuum of Care Homelessness', 'datapoint': dp, 'value': val, 'valuetype': 'count' }
                 yield body
