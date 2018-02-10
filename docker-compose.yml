@@ -10,10 +10,11 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:${TAG}
     container_name: kibana
-    volumes: ['./kibana.yml:/usr/share/kibana/config/kibana.yml']
     environment:
       - ELASTICSEARCH_USERNAME=elastic
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+      # spaces cannot be anywhere in the json string
+      - REGIONMAP={"layers":[{"name":"USMetropolitanStatisticalAreas","url":"http://localhost/data/cb_2016_us_cbsa_500k.json","fields":[{"name":"NAME","description":"MSA"}]}]}
     ports: ['5601:5601']
     depends_on: ['elasticsearch']
 
