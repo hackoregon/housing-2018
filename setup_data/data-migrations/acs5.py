@@ -158,8 +158,6 @@ if __name__ == '__main__':
             t2 = datetime.now()
             indexing_times.append(t2 - t1)
             insert_ct += result[0]
-            # move file into parsed folder
-            os.rename(curr_file, os.path.join(FILE_DIR, 'parsed', file))
 
         requests.post(ES_URL + 'datasets/default/', json={ 'ran': True, 'lastUpdate': datetime.now().strftime(date_fmt), 'title': 'acs5', 'description': 'American Community Survey 5-Year', 'source': 'https://api.census.gov/data/2016/acs/acs5/profile/variables.html', 'message': 'Success. {} documents added.'.format(insert_ct) })
 
@@ -170,7 +168,6 @@ if __name__ == '__main__':
 
         # move errored file into error folder
         if curr_file is not None:
-            os.rename(curr_file, os.path.join(FILE_DIR, 'error', os.path.basename(curr_file)))
             msg = "Error on file " + curr_file + ": " + msg
 
         requests.post(ES_URL + 'datasets/default/', json={ 'ran': False, 'lastUpdate': datetime.now().strftime(date_fmt), 'title': 'acs5', 'description': 'American Community Survey 5-Year', 'source': 'https://api.census.gov/data/2016/acs/acs5/profile/variables.html', 'message': msg })
