@@ -56,9 +56,18 @@ def get_file_definition(filename):
     row = profile_estimates.loc[data_id]
     return row
 
+def delete_items(census_id, state_id, year):
+    query = {"query": {"bool": {"filter": [{ "match": { "census_id": census_id }}, { "match": { "state_id": state_id }}, { "match": { "time": '{}-01-01'.format(year)  }}]}}}
+    for e in elasticsearch.helpers.scan(es, index=INDEX, doc_type='default', scroll='1m', query=query, _source=None):
+        # There exists a parameter to avoid this del statement (`track_source`) but at my version it does    n't exists.
+        del e['_score']
+        e['_op_type'] = 'delete'
+        yield e
+
 if __name__ == '__main__':
     API_KEY = '46828e32fefc67853bb60cd34eeb89e9db5cdcbd'
     DATA_DIR = '/usr/src/app/data-migrations'
+    FILE_DIR = os.path.join(DATA_DIR, 'data/acs5')
     ES_URL = 'http://elastic:{}@elasticsearch:9200/'.format(os.environ['ELASTIC_PASSWORD'])
     INDEX = 'acs5'
 
@@ -80,58 +89,94 @@ if __name__ == '__main__':
     profile_estimates = profile_vrs.loc[profile_vrs.index.map(lambda x: x.endswith('E'))]
     profile_estimates = profile_estimates[profile_estimates['group']!='DP02PR']
 
-    # Create index
+    curr_file = None
+    processing_times = []
+    indexing_times = []
+
     try:
         insert_ct = 0
-        es.indices.create(index=INDEX, ignore=400)
+        # Create index if it doesn't exist
+        delete = False
+        status = es.indices.create(index=INDEX, ignore=400)
+        if status.get('status', 200) == 400:
+            delete = True
 
-        for file in os.listdir(DATA_DIR + '/data/acs5'):
-            if 'profile' not in file:
+        for file in os.listdir(FILE_DIR):
+            t1 = datetime.now()
+            curr_file = os.path.join(FILE_DIR, file)
+            if not file.endswith('profile.csv'):
                 continue
             census_id, state_id, year = split_filename(file)
-            info = get_file_definition(file)
+            try:
+                info = get_file_definition(file)
+            except:
+                continue
             labels = info.label.split('!!')
-            data = pd.read_csv(DATA_DIR + '/data/acs5/' + file)
-            data['state_name'] = geographies.at[(40, int(state_id), 0), 'Area Name (including legal/statistical area description)'][0]
+            data = pd.read_csv(curr_file)
+            state_name = geographies.at[(40, int(state_id), 0), 'Area Name (including legal/statistical area description)'][0]
             data['county_name'] = data.apply(lambda x: geographies.at[(50, x.state, x.county), 'Area Name (including legal/statistical area description)'][0], axis=1)
             
             def get_doc():
                 for row in data.iterrows():
                     d = row[1]
+                    value = d[0]
+                    if isinstance(value, str):
+                        if value in [-999999999, -666666666, -888888888]:
+                            value = ''
+                        if value.endswith('+') or value.endswith('-'):
+                            value = value.replace('+', '').replace('-', '')
+                        try:
+                            value = float(value)
+                        except:
+                            value = ''
                     action = { '_index': INDEX, '_type': 'default'}
                     body = {
                             'time': datetime(int(year), 1, 1, tzinfo=pytz.utc).astimezone(pacific).strftime(date_fmt),
                             'source': 'profile',
-                            'census_id': d.index[0], 
-                            'state_name': d['state_name'], 
+                            'census_id': census_id, 
+                            'state_name': state_name,
                             'state_id': d['state'],
                             'county_name': d['county_name'],
                             'county_id': d['county'],
+                            'tract_id': d['tract'],
                             'concept': info.concept,
                             'valuetype': labels[0],
                             'datatype': labels[1],
                             'group': labels[2] if len(labels) > 2 else '',
-                            'value': d[0]
+                            'value': value
                     }
                     action['_source'] = body
                     yield action
                     
-            def delete_items():
-                query = {"query": {"bool": {"filter": [{ "term": { "census_id": census_id }}, { "term": { "state_id": state_id }}, { "term": { "time": datetime(int(year), 1, 1, tzinfo=pytz.utc).astimezone(pacific).strftime(date_fmt) }}]}}}
-                for e in elasticsearch.helpers.scan(es, index=INDEX, doc_type='default', scroll='1m', query=query, _source=None):
-                    # There exists a parameter to avoid this del statement (`track_source`) but at my version it does    n't exists.
-                    del e['_score']
-                    e['_op_type'] = 'delete'
-                    yield e
 
-            elasticsearch.helpers.bulk(es, actions=delete_items())
+            t2 = datetime.now()        
+            processing_times.append(t2 - t1)
+            t1 = datetime.now()
+            if delete:
+                elasticsearch.helpers.bulk(es, actions=delete_items(census_id, state_id, year))
             result = elasticsearch.helpers.bulk(es, actions=get_doc())
+            t2 = datetime.now()
+            indexing_times.append(t2 - t1)
             insert_ct += result[0]
-                
-            break
+            # move file into parsed folder
+            os.rename(curr_file, os.path.join(FILE_DIR, 'parsed', file))
 
         requests.post(ES_URL + 'datasets/default/', json={ 'ran': True, 'lastUpdate': datetime.now().strftime(date_fmt), 'title': 'acs5', 'description': 'American Community Survey 5-Year', 'source': 'https://api.census.gov/data/2016/acs/acs5/profile/variables.html', 'message': 'Success. {} documents added.'.format(insert_ct) })
 
     except BaseException as e:
-        es.indices.delete(INDEX)
-        requests.post(ES_URL + 'datasets/default/', json={ 'ran': False, 'lastUpdate': datetime.now().strftime(date_fmt), 'title': 'acs5', 'description': 'American Community Survey 5-Year', 'source': 'https://api.census.gov/data/2016/acs/acs5/profile/variables.html', 'message': str(e) })
+        # don't delete index if it fails
+        #es.indices.delete(INDEX)
+        msg = str(e)
+
+        # move errored file into error folder
+        if curr_file is not None:
+            os.rename(curr_file, os.path.join(FILE_DIR, 'error', os.path.basename(curr_file)))
+            msg = "Error on file " + curr_file + ": " + msg
+
+        requests.post(ES_URL + 'datasets/default/', json={ 'ran': False, 'lastUpdate': datetime.now().strftime(date_fmt), 'title': 'acs5', 'description': 'American Community Survey 5-Year', 'source': 'https://api.census.gov/data/2016/acs/acs5/profile/variables.html', 'message': msg })
+
+    finally:
+        print(pd.Series(processing_times).describe())
+        print(pd.Series(indexing_times).describe())
+
+
