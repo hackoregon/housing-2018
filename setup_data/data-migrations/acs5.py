@@ -147,7 +147,6 @@ if __name__ == '__main__':
                     }
                     action['_source'] = body
                     yield action
-                    
 
             t2 = datetime.now()        
             processing_times.append(t2 - t1)
@@ -166,7 +165,6 @@ if __name__ == '__main__':
         #es.indices.delete(INDEX)
         msg = str(e)
 
-        # move errored file into error folder
         if curr_file is not None:
             msg = "Error on file " + curr_file + ": " + msg
 
@@ -175,5 +173,4 @@ if __name__ == '__main__':
     finally:
         print(pd.Series(processing_times).describe())
         print(pd.Series(indexing_times).describe())
-
 
