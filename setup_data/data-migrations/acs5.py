@@ -142,7 +142,7 @@ if __name__ == '__main__':
                             'concept': info.concept,
                             'valuetype': labels[0],
                             'datatype': labels[1],
-                            'group': labels[2] if len(labels) > 2 else '',
+                            'groups': labels[2:] if len(labels) > 2 else '',
                             'value': value
                     }
                     action['_source'] = body
