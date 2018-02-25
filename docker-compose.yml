@@ -2,7 +2,7 @@
 version: '3'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-platinum:${TAG}
+    image: docker.elastic.co/elasticsearch/elasticsearch-platinum:${ELASTIC_VERSION}
     container_name: elasticsearch
     environment: ['http.host=0.0.0.0', 'transport.host=127.0.0.1', 'ELASTIC_PASSWORD=${ELASTIC_PASSWORD}', 'ES_JAVA_OPTS=-Xms512m -Xmx512m' ]
     ports: ['9200:9200']
@@ -20,6 +20,7 @@ services:
       - ELASTICSEARCH_USERNAME=elastic
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
       - http.host=0.0.0.0
+      - REGIONMAP={"layers":[{"name":"USMetropolitanStatisticalAreas","url":"http://localhost/data/cb_2016_us_cbsa_500k.json","fields":[{"name":"NAME","description":"MSA"}]}]}
     ports: ['5601:5601']
     networks: ['stack']
     depends_on: ['elasticsearch']
@@ -30,9 +31,19 @@ services:
     volumes: ['./scripts/setup-kibana.sh:/usr/local/bin/setup-kibana.sh:ro']
     command: ['/bin/bash', '-c', 'cat /usr/local/bin/setup-kibana.sh | tr -d "\r" | bash']
     environment: ['ELASTIC_PASSWORD=${ELASTIC_PASSWORD}']
-    networks: ['stack']
     depends_on: ['elasticsearch']
 
+  data_store:
+    build: data_store
+    container_name: data_store
+    ports: ['80:80']
+
+  setup_data:
+    build: setup_data
+    container_name: setup_data
+    command: ['/bin/bash', '-c', 'cat /usr/local/bin/data-migrations.sh | tr -d "\r" | bash']
+    environment: ['ELASTIC_PASSWORD=${ELASTIC_PASSWORD}']
+    depends_on: ['elasticsearch']
 
 networks: {stack: {}}
 volumes:

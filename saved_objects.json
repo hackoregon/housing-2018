@@ -1,0 +1,216 @@
+[
+  {
+    "_id": "bae7c920-070a-11e8-a34e-93817f23221b",
+    "_type": "dashboard",
+    "_source": {
+      "title": "Portland",
+      "hits": 0,
+      "description": "",
+      "panelsJSON": "[{\"panelIndex\":\"1\",\"gridData\":{\"x\":0,\"y\":0,\"w\":6,\"h\":3,\"i\":\"1\"},\"id\":\"b3672970-070a-11e8-a34e-93817f23221b\",\"type\":\"visualization\",\"version\":\"6.1.2\"},{\"panelIndex\":\"2\",\"gridData\":{\"x\":6,\"y\":0,\"w\":6,\"h\":4,\"i\":\"2\"},\"id\":\"6cdba9d0-070b-11e8-a34e-93817f23221b\",\"type\":\"visualization\",\"version\":\"6.1.2\"}]",
+      "optionsJSON": "{\"darkTheme\":false,\"hidePanelTitles\":false,\"useMargins\":true}",
+      "uiStateJSON": "{\"P-2\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":1,\"direction\":\"desc\"}}}}}",
+      "version": 1,
+      "timeRestore": false,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"language\":\"lucene\",\"query\":\"portland\"},\"filter\":[{\"meta\":{\"index\":\"41e90350-0709-11e8-a34e-93817f23221b\",\"negate\":false,\"disabled\":false,\"alias\":null,\"type\":\"phrase\",\"key\":\"datapoint.keyword\",\"value\":\"Portland-Vancouver-Hillsboro, OR-WA\",\"params\":{\"query\":\"Portland-Vancouver-Hillsboro, OR-WA\",\"type\":\"phrase\"}},\"query\":{\"match\":{\"datapoint.keyword\":{\"query\":\"Portland-Vancouver-Hillsboro, OR-WA\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}],\"highlightAll\":true,\"version\":true}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
+    "_id": "5d1bcad0-070a-11e8-a34e-93817f23221b",
+    "_type": "search",
+    "_source": {
+      "title": "Nominal Percent Change in Home Prices from Mid-2000s Peak–Trough",
+      "description": "",
+      "hits": 0,
+      "columns": [
+        "_source"
+      ],
+      "sort": [
+        "_score",
+        "desc"
+      ],
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"41e90350-0709-11e8-a34e-93817f23221b\",\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"lucene\",\"query\":\"mid-2000 trough\"},\"filter\":[{\"meta\":{\"negate\":false,\"index\":\"41e90350-0709-11e8-a34e-93817f23221b\",\"type\":\"phrase\",\"key\":\"datatype\",\"value\":\"Nominal Percent Change in Home Prices from Mid-2000s Peak–Trough\",\"params\":{\"query\":\"Nominal Percent Change in Home Prices from Mid-2000s Peak–Trough\",\"type\":\"phrase\"},\"disabled\":false,\"alias\":null},\"query\":{\"match\":{\"datatype\":{\"query\":\"Nominal Percent Change in Home Prices from Mid-2000s Peak–Trough\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}]}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
+    "_id": "1f7d9b10-0bbd-11e8-a34e-93817f23221b",
+    "_type": "search",
+    "_source": {
+      "title": "Homelessness-by-CoC",
+      "description": "",
+      "hits": 0,
+      "columns": [
+        "_source"
+      ],
+      "sort": [
+        "_score",
+        "desc"
+      ],
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"41e90350-0709-11e8-a34e-93817f23221b\",\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"lucene\",\"query\":\"\"},\"filter\":[{\"meta\":{\"negate\":false,\"index\":\"41e90350-0709-11e8-a34e-93817f23221b\",\"type\":\"phrase\",\"key\":\"datatype\",\"value\":\"Continuum of Care Homelessness\",\"params\":{\"query\":\"Continuum of Care Homelessness\",\"type\":\"phrase\"},\"disabled\":false,\"alias\":null},\"query\":{\"match\":{\"datatype\":{\"query\":\"Continuum of Care Homelessness\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}]}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
+    "_id": "f39e0f00-0e98-11e8-b04c-c185d4ee4ecc",
+    "_type": "search",
+    "_source": {
+      "title": "Median Home Price-to-Median Income Ratio",
+      "description": "",
+      "hits": 0,
+      "columns": [
+        "_source"
+      ],
+      "sort": [
+        "_score",
+        "desc"
+      ],
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"41e90350-0709-11e8-a34e-93817f23221b\",\"highlightAll\":true,\"version\":true,\"query\":{\"query\":\"\",\"language\":\"lucene\"},\"filter\":[{\"meta\":{\"negate\":false,\"index\":\"41e90350-0709-11e8-a34e-93817f23221b\",\"type\":\"phrase\",\"key\":\"datatype\",\"value\":\"Median Home Price-to-Median Income Ratio\",\"params\":{\"query\":\"Median Home Price-to-Median Income Ratio\",\"type\":\"phrase\"},\"disabled\":false,\"alias\":null},\"query\":{\"match\":{\"datatype\":{\"query\":\"Median Home Price-to-Median Income Ratio\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}]}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
+    "_id": "359bc390-070d-11e8-a34e-93817f23221b",
+    "_type": "visualization",
+    "_source": {
+      "title": "Nominal Percent Change in Home Prices from Mid-2000s Peak–Trough - Bar Graph",
+      "visState": "{\"title\":\"Nominal Percent Change in Home Prices from Mid-2000s Peak–Trough - Bar Graph\",\"type\":\"histogram\",\"params\":{\"type\":\"histogram\",\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"truncate\":100},\"title\":{}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Average value\"}}],\"seriesParams\":[{\"show\":\"true\",\"type\":\"histogram\",\"mode\":\"stacked\",\"data\":{\"label\":\"Average value\",\"id\":\"1\"},\"valueAxis\":\"ValueAxis-1\",\"drawLinesBetweenPoints\":true,\"showCircles\":true}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"avg\",\"schema\":\"metric\",\"params\":{\"field\":\"value\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"datapoint.keyword\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Metro\"}}]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "savedSearchId": "5d1bcad0-070a-11e8-a34e-93817f23221b",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
+    "_id": "b3672970-070a-11e8-a34e-93817f23221b",
+    "_type": "visualization",
+    "_source": {
+      "title": "Median Home Price to Income Ratio - Histogram",
+      "visState": "{\"title\":\"Median Home Price to Income Ratio - Histogram\",\"type\":\"histogram\",\"params\":{\"type\":\"histogram\",\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"truncate\":100},\"title\":{}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Median value\"}}],\"seriesParams\":[{\"show\":\"true\",\"type\":\"histogram\",\"mode\":\"stacked\",\"data\":{\"label\":\"Median value\",\"id\":\"1\"},\"valueAxis\":\"ValueAxis-1\",\"drawLinesBetweenPoints\":true,\"showCircles\":true}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"median\",\"schema\":\"metric\",\"params\":{\"field\":\"value\",\"percents\":[50]}},{\"id\":\"2\",\"enabled\":true,\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"time\",\"interval\":\"y\",\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{},\"customLabel\":\"Ratio by Year\"}}]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "savedSearchId": "5d1bcad0-070a-11e8-a34e-93817f23221b",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
+    "_id": "fb584c30-070c-11e8-a34e-93817f23221b",
+    "_type": "visualization",
+    "_source": {
+      "title": "Nominal Percent Change in Home Prices from Mid-2000s Peak–Trough - Table List",
+      "visState": "{\"title\":\"Nominal Percent Change in Home Prices from Mid-2000s Peak–Trough - Table List\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"sum\",\"schema\":\"metric\",\"params\":{\"field\":\"value\",\"customLabel\":\"Value\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"datapoint.keyword\",\"size\":200,\"order\":\"asc\",\"orderBy\":\"1\",\"customLabel\":\"Metro\"}}]}",
+      "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+      "description": "",
+      "savedSearchId": "5d1bcad0-070a-11e8-a34e-93817f23221b",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
+    "_id": "6cdba9d0-070b-11e8-a34e-93817f23221b",
+    "_type": "visualization",
+    "_source": {
+      "title": "Median Home Price-to-Median Income Ratio - Table",
+      "visState": "{\"title\":\"Median Home Price-to-Median Income Ratio - Table\",\"type\":\"table\",\"params\":{\"perPage\":5,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"avg\",\"schema\":\"metric\",\"params\":{\"field\":\"value\",\"customLabel\":\"Ratio\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"significant_terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"datapoint.keyword\",\"size\":100,\"customLabel\":\"Metros\"}}]}",
+      "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+      "description": "",
+      "savedSearchId": "5d1bcad0-070a-11e8-a34e-93817f23221b",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
+    "_id": "501b44a0-0bc4-11e8-a34e-93817f23221b",
+    "_type": "visualization",
+    "_source": {
+      "title": "Table W-11: Metro Area–Median Payment-to-Income Ratios: 1990–2016 for Portland-Vancouver-Hillsboro",
+      "visState": "{\"title\":\"Table W-11: Metro Area–Median Payment-to-Income Ratios: 1990–2016 for Portland-Vancouver-Hillsboro\",\"type\":\"line\",\"params\":{\"addLegend\":true,\"addTimeMarker\":false,\"addTooltip\":true,\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"labels\":{\"show\":true,\"truncate\":100},\"position\":\"bottom\",\"scale\":{\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{},\"type\":\"category\"}],\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"legendPosition\":\"right\",\"seriesParams\":[{\"data\":{\"id\":\"2\",\"label\":\"Average value\"},\"drawLinesBetweenPoints\":true,\"mode\":\"normal\",\"show\":true,\"showCircles\":true,\"type\":\"line\",\"valueAxis\":\"ValueAxis-1\"}],\"times\":[],\"type\":\"line\",\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"labels\":{\"filter\":false,\"rotate\":0,\"show\":true,\"truncate\":100},\"name\":\"LeftAxis-1\",\"position\":\"left\",\"scale\":{\"mode\":\"normal\",\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{\"text\":\"Average value\"},\"type\":\"value\"}]},\"aggs\":[{\"id\":\"2\",\"enabled\":true,\"type\":\"avg\",\"schema\":\"metric\",\"params\":{\"field\":\"value\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"time\",\"interval\":\"y\",\"customInterval\":\"2h\",\"min_doc_count\":0,\"extended_bounds\":{},\"customLabel\":\"Time\"}}]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"41e90350-0709-11e8-a34e-93817f23221b\",\"filter\":[{\"meta\":{\"index\":\"41e90350-0709-11e8-a34e-93817f23221b\",\"negate\":false,\"disabled\":false,\"alias\":null,\"type\":\"phrase\",\"key\":\"source\",\"value\":\"W-11\",\"params\":{\"query\":\"W-11\",\"type\":\"phrase\"}},\"query\":{\"match\":{\"source\":{\"query\":\"W-11\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}},{\"meta\":{\"index\":\"41e90350-0709-11e8-a34e-93817f23221b\",\"negate\":false,\"disabled\":false,\"alias\":null,\"type\":\"phrase\",\"key\":\"datapoint\",\"value\":\"Portland-Vancouver-Hillsboro, OR-WA\",\"params\":{\"query\":\"Portland-Vancouver-Hillsboro, OR-WA\",\"type\":\"phrase\"}},\"query\":{\"match\":{\"datapoint\":{\"query\":\"Portland-Vancouver-Hillsboro, OR-WA\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
+    "_id": "63f2c0f0-0c84-11e8-a34e-93817f23221b",
+    "_type": "visualization",
+    "_source": {
+      "title": "Homelessness-Chart",
+      "visState": "{\"title\":\"Homelessness-Chart\",\"type\":\"histogram\",\"params\":{\"type\":\"histogram\",\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"truncate\":100},\"title\":{}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Median value\"}}],\"seriesParams\":[{\"show\":\"true\",\"type\":\"histogram\",\"mode\":\"stacked\",\"data\":{\"label\":\"Median value\",\"id\":\"1\"},\"valueAxis\":\"ValueAxis-1\",\"drawLinesBetweenPoints\":true,\"showCircles\":true}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"median\",\"schema\":\"metric\",\"params\":{\"field\":\"value\",\"percents\":[50]}},{\"id\":\"2\",\"enabled\":true,\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"time\",\"interval\":\"y\",\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{}}}]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "savedSearchId": "1f7d9b10-0bbd-11e8-a34e-93817f23221b",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[],\"query\":{\"language\":\"lucene\",\"query\":\"\"}}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  },
+  {
+    "_id": "1a97a0d0-0e99-11e8-b04c-c185d4ee4ecc",
+    "_type": "visualization",
+    "_source": {
+      "title": "Median Home Price-to-Median Income Ratio Map",
+      "visState": "{\"title\":\"Median Home Price-to-Median Income Ratio Map\",\"type\":\"region_map\",\"params\":{\"legendPosition\":\"bottomright\",\"addTooltip\":true,\"colorSchema\":\"Yellow to Red\",\"selectedLayer\":{\"name\":\"USMetropolitanStatisticalAreas\",\"url\":\"http://localhost/data/cb_2016_us_cbsa_500k.json\",\"fields\":[{\"name\":\"NAME\",\"description\":\"MSA\"}],\"layerId\":\"self_hosted.USMetropolitanStatisticalAreas\"},\"selectedJoinField\":{\"name\":\"NAME\",\"description\":\"MSA\"},\"isDisplayWarning\":true,\"wms\":{\"enabled\":false,\"options\":{\"format\":\"image/png\",\"transparent\":true}},\"mapZoom\":2,\"mapCenter\":[0,0]},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"avg\",\"schema\":\"metric\",\"params\":{\"field\":\"value\",\"customLabel\":\"Average Ratio\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"datapoint.keyword\",\"size\":500,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Metro Area\"}}]}",
+      "uiStateJSON": "{\"mapZoom\":5,\"mapCenter\":[39.33429742980725,-101.49169921875001]}",
+      "description": "",
+      "savedSearchId": "f39e0f00-0e98-11e8-b04c-c185d4ee4ecc",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"time:2016\",\"language\":\"lucene\"}}"
+      }
+    },
+    "_meta": {
+      "savedObjectVersion": 2
+    }
+  }
+]
