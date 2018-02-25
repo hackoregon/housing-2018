@@ -4,17 +4,23 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch-platinum:${TAG}
     container_name: elasticsearch
-    environment: ['http.host=0.0.0.0', 'transport.host=127.0.0.1', 'ELASTIC_PASSWORD=${ELASTIC_PASSWORD}']
-    ports: ['127.0.0.1:9200:9200']
+    environment: ['http.host=0.0.0.0', 'transport.host=127.0.0.1', 'ELASTIC_PASSWORD=${ELASTIC_PASSWORD}', 'ES_JAVA_OPTS=-Xms512m -Xmx512m' ]
+    ports: ['9200:9200']
     networks: ['stack']
+    volumes: ['esdata1:/usr/share/elasticsearch/data']
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
 
   kibana:
     image: docker.elastic.co/kibana/kibana:${TAG}
     container_name: kibana
     environment:
-      - ELASTICSEARCH_USERNAME=kibana
+      - ELASTICSEARCH_USERNAME=elastic
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
-    ports: ['127.0.0.1:5601:5601']
+      - http.host=0.0.0.0
+    ports: ['5601:5601']
     networks: ['stack']
     depends_on: ['elasticsearch']
 
@@ -29,3 +35,6 @@ services:
 
 
 networks: {stack: {}}
+volumes:
+  esdata1:
+    driver: local
