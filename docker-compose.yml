@@ -37,12 +37,14 @@ services:
     build: data_store
     container_name: data_store
     ports: ['80:80']
+    networks: ['stack']
 
   setup_data:
     build: setup_data
     container_name: setup_data
     command: ['/bin/bash', '-c', 'cat /usr/local/bin/data-migrations.sh | tr -d "\r" | bash']
     environment: ['ELASTIC_PASSWORD=${ELASTIC_PASSWORD}']
+    networks: ['stack']
     depends_on: ['elasticsearch']
 
 networks: {stack: {}}
