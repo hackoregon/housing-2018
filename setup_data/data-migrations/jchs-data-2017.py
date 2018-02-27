@@ -2,6 +2,7 @@ import os
 import re
 from datetime import datetime
 
+import requests
 import pandas as pd
 import pytz
 from pytz import timezone
@@ -152,7 +153,8 @@ class ElasticImport(object):
             elasticsearch.helpers.bulk(self.es, self.delete_items(query), chunk_size=chunk_size)
 
         # add new items
-        elasticsearch.helpers.bulk(self.es, actions=self.generate_doc(), chunk_size=chunk_size)
+        result = elasticsearch.helpers.bulk(self.es, actions=self.generate_doc(), chunk_size=chunk_size)
+        return result
         
     def is_valid_value(self, val):
         if pd.isnull(val) or str(val).strip() in ['', '.', 'na']:
@@ -648,8 +650,8 @@ def flatten_search_results(hit):
 if __name__ == '__main__':
     # connect to elasticsearch and create index
     INDEX = 'jchs-data-2017'
-    es = elasticsearch.Elasticsearch(['http://elastic:{}@elasticsearch:9200/'.format(os.environ['ELASTIC_PASSWORD'])])
-    es.indices.create(index=INDEX, ignore=400)
+    ES_URL = 'http://elastic:{}@elasticsearch:9200/'.format(os.environ['ELASTIC_PASSWORD'])
+    es = elasticsearch.Elasticsearch([ES_URL])
 
     # Fetch JCHS Appendix Tables
     # If file does not already exist, go fetch it from url, otherwise load local version.
@@ -709,6 +711,16 @@ if __name__ == '__main__':
     imports.append(w17)
     imports.append(w18)
 
-    # run import methods on them
-    for i in imports:
-        i.add_to_index()
+    try:
+        es.indices.create(index=INDEX, ignore=400)
+        # run import methods on them
+        insert_ct = 0
+        for i in imports:
+            result = i.add_to_index()
+            insert_ct += result[0]
+
+        requests.post(ES_URL + 'datasets/default/', json={ 'ran': True, 'lastUpdate': datetime.now().strftime(date_fmt), 'title': 'jchs-data-2017', 'description': 'JCHS 2017 Appendix Tables', 'source': 'http://www.jchs.harvard.edu/sites/jchs.harvard.edu/files/all_son_2017_tables_current_6_12_17.xlsx', 'message': 'Success. {} documents added.'.format(insert_ct) })
+
+    except BaseException as e:
+        es.indices.delete(index=INDEX)
+        requests.post(ES_URL + 'datasets/default/', json={ 'ran': False, 'lastUpdate': datetime.now().strftime(date_fmt), 'title': 'jchs-data-2017', 'description': 'JCHS 2017 Appendix Tables', 'source': 'http://www.jchs.harvard.edu/sites/jchs.harvard.edu/files/all_son_2017_tables_current_6_12_17.xlsx', 'message': str(e) })

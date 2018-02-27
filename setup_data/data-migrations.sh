@@ -22,8 +22,8 @@ do
   else
     echo "Running migration $file"
     python $file
-    dt=`date`
-    curl -XPOST $es_url/datasets/default -H 'Content-Type: application/json' -d '{ "ran": true, "lastUpdate": "'"$dt"'", "title": "jchs-data-2017", "description": "JCHS 2017 Appendix Tables", "source": "http://www.jchs.harvard.edu/sites/jchs.harvard.edu/files/all_son_2017_tables_current_6_12_17.xlsx" }'
+#dt=`date`
+#curl -XPOST $es_url/datasets/default -H 'Content-Type: application/json' -d '{ "ran": true, "lastUpdate": "'"$dt"'", "title": "jchs-data-2017", "description": "JCHS 2017 Appendix Tables", "source": "http://www.jchs.harvard.edu/sites/jchs.harvard.edu/files/all_son_2017_tables_current_6_12_17.xlsx" }'
   fi
 done
 
