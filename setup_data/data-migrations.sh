@@ -12,6 +12,10 @@ done
 for file in /usr/src/app/data-migrations/*.py
 do
   filename="${file##*/}"
+  if case 'skip_' in filename*) ;; *) false;; esac; 
+  then
+    continue
+  fi
   dataset_name="${filename%.*}"
   response=$(curl --write-out %{http_code} --silent --output /dev/null $es_url/$dataset_name)
   echo "Looking for index $dataset_name"
