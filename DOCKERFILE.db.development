@@ -2,12 +2,15 @@ FROM postgres:9.6
 LABEL maintainer="M. Edward (Ed) Borasky <znmeb@znmeb.net>"
 # https://github.com/hackoregon/data-science-pet-containers/blob/master/containers/Dockerfile.postgis
 
-# Repo for up-to-date R
-COPY jessie/cran.list.jessie /etc/apt/sources.list.d/cran.list
+# Repo for up-to-date R, see https://cran.r-project.org/bin/linux/debian/#backports_on_cran for details
+COPY packages/cran.list.jessie /etc/apt/sources.list.d/cran.list
 RUN apt-key adv --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
+# If the key server isn't working, you can download the key directly and save it
+#COPY packages/jranke.asc /etc/apt/jranke.asc
+#RUN apt-key add /etc/apt/jranke.asc
 
 # Backports
-COPY jessie/backports.list.jessie /etc/apt/sources.list.d/backports.list
+COPY packages/backports.list.jessie /etc/apt/sources.list.d/backports.list
 
 # Install apt packages
 RUN apt-get update \
