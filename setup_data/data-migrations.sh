@@ -12,8 +12,9 @@ done
 for file in /usr/src/app/data-migrations/*.py
 do
   filename="${file##*/}"
-  if case 'skip_' in filename*) ;; *) false;; esac; 
-  then
+  echo "$filename"
+  if [ ${filename:0:4} = 'skip' ]; then
+    echo "Skipping $filename"
     continue
   fi
   dataset_name="${filename%.*}"
