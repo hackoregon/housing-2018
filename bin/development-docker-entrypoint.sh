@@ -3,7 +3,7 @@
 # wait-for-postgres.sh
 # https://docs.docker.com/compose/startup-order/
 
-set -e
+set -eou pipefail
 
 export PGPASSWORD=$POSTGRES_PASSWORD
 until psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" -d postgres -c '\q'
