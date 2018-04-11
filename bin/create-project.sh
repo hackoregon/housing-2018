@@ -1,8 +1,12 @@
 #! /bin/bash
 
-rm  manage.py
-rm -rf dead_songs
-rm -rf api
+set -euo pipefail
+
+if [ -z "${PROJECT_NAME:-}" ]; then
+   . bin/set-env.sh 
+fi
+
+bin/remove-sample.sh
 
 docker-compose -f development-docker-compose.yml run api_development django-admin.py startproject $PROJECT_NAME .
 
