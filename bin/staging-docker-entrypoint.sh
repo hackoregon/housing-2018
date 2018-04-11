@@ -3,7 +3,7 @@
 # wait-for-postgres.sh
 # https://docs.docker.com/compose/startup-order/
 
-set -e
+set -eou pipefail
 
 export PGPASSWORD=$POSTGRES_PASSWORD
 until psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" -d "$POSTGRES_NAME" -c '\q'
@@ -21,4 +21,4 @@ echo Debug: $DEBUG
 
 python manage.py migrate
 
-gunicorn crash_data_api.wsgi -c gunicorn_config.py
+gunicorn $PROJECT_NAME.wsgi -c gunicorn_config.py
