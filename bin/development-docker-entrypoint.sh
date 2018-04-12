@@ -24,5 +24,8 @@ echo "Make migrations"
 echo "Migrate"
 ./manage.py migrate
 
+echo "Load data"
+./manage.py shell --command="import data.loader"
+
 echo "Run server..."
 ./manage.py runserver 0.0.0.0:8000
