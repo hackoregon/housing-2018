@@ -27,5 +27,8 @@ echo "Migrate"
 echo "Load data"
 ./manage.py shell --command="import data.loader"
 
+echo "Create Postgres backup file"
+pg_dump -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" $POSTGRES_NAME > ./Backups/$POSTGRES_NAME.sql
+
 echo "Run server..."
 ./manage.py runserver 0.0.0.0:8000
