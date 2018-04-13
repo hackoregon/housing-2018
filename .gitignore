@@ -1,2 +1,3 @@
 .DS_Store
-build/data-migrations/data/*
+data_store/content/data/
+setup_data/data-migrations/data/

@@ -12,6 +12,11 @@ done
 for file in /usr/src/app/data-migrations/*.py
 do
   filename="${file##*/}"
+  echo "$filename"
+  if [ ${filename:0:4} = 'skip' ]; then
+    echo "Skipping $filename"
+    continue
+  fi
   dataset_name="${filename%.*}"
   response=$(curl --write-out %{http_code} --silent --output /dev/null $es_url/$dataset_name)
   echo "Looking for index $dataset_name"

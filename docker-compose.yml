@@ -31,6 +31,7 @@ services:
     volumes: ['./scripts/setup-kibana.sh:/usr/local/bin/setup-kibana.sh:ro']
     command: ['/bin/bash', '-c', 'cat /usr/local/bin/setup-kibana.sh | tr -d "\r" | bash']
     environment: ['ELASTIC_PASSWORD=${ELASTIC_PASSWORD}']
+    networks: ['stack']
     depends_on: ['elasticsearch']
 
   data_store:
