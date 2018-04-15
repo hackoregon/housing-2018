@@ -158,7 +158,8 @@ class ImportA1(DjangoImport):
                 key = '{} {}'.format(ser_ix[2], ser_ix[0])
                 value_type = ser_ix[1]
                 value_type = value_type.replace('Millions of', '')
-                if value_type == 'Thousands':
+                value_type = value_type.strip().lower()
+                if value_type == 'thousands':
                     value_type = 'count'
                 time = datetime(ix, 1, 1, tzinfo=pytz.utc)
                 body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': key, 'datapoint': 'United States', 'value': val, 'valuetype': value_type }
@@ -242,7 +243,7 @@ class ImportW3(DjangoImport):
                 if pd.isnull(val):
                     continue
                 time = datetime(ix, 1, 1, tzinfo=pytz.utc)
-                body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': 'Average Real Household Incomes by Income Quintile', 'datapoint': ser_ix, 'value': val, 'valuetype': '2015 Dollars' }
+                body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': 'Average Real Household Incomes by Income Quintile', 'datapoint': ser_ix, 'value': val, 'valuetype': '2015 dollars' }
                 yield body
 
 
@@ -263,7 +264,7 @@ class ImportW4(DjangoImport):
                 if ser_ix[0] == 'All Households':
                     dp = ser_ix[0]
                 time = datetime(ix, 1, 1, tzinfo=pytz.utc)
-                body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': 'Homeownership Rates by Age, Race/Ethnicity, and Region', 'datapoint': dp, 'value': val, 'valuetype': 'Percent' }
+                body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': 'Homeownership Rates by Age, Race/Ethnicity, and Region', 'datapoint': dp, 'value': val, 'valuetype': 'percent' }
                 yield body
 
 
@@ -485,7 +486,7 @@ class ImportW14(DjangoImport):
                 key = '{}, {} Households, Income {}'.format(re.sub('\s\(.+\)', '', ser_ix[0]), ser_ix[2], ser_ix[1])
                 if ser_ix[0] == 'Median for All Income Groups':
                     key = ser_ix[2] + ', ' + ser_ix[0]
-                    value_type = ser_ix[1].lower()
+                    value_type = ser_ix[1].lower().strip()
                 time = datetime(2015, 1, 1, tzinfo=pytz.utc)
                 body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
                 yield body
