@@ -29,7 +29,7 @@ echo "Load data"
 ./manage.py shell --command="import data.loader"
 
 echo "Create Postgres backup file"
-PGPASSWORD=$POSTGRES_PASSWORD pg_dump -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" $POSTGRES_NAME > ./Backups/$POSTGRES_NAME.sql
+PGPASSWORD=$POSTGRES_PASSWORD pg_dump -Fp -v -C -c -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" $POSTGRES_NAME > ./Backups/$POSTGRES_NAME.sql
 
 echo "Run server..."
 ./manage.py runserver 0.0.0.0:8000
