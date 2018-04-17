@@ -5,15 +5,16 @@
 
 set -eou pipefail
 
-export PGPASSWORD=$POSTGRES_PASSWORD
-until psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" -d postgres -c '\q'
+until PGPASSWORD=$POSTGRES_PASSWORD psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" -d postgres -c '\q'
 do
   >&2 echo "Postgres is unavailable - sleeping"
-  sleep 15
+  sleep 5
 done
 
 >&2 echo "Postgres is up"
+
 echo Debug: $DEBUG
+
 # Collect static files
 echo "Collect static files"
 ./manage.py collectstatic --noinput
@@ -28,7 +29,7 @@ echo "Load data"
 ./manage.py shell --command="import data.loader"
 
 echo "Create Postgres backup file"
-pg_dump -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" $POSTGRES_NAME > ./Backups/$POSTGRES_NAME.sql
+PGPASSWORD=$POSTGRES_PASSWORD pg_dump -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" $POSTGRES_NAME > ./Backups/$POSTGRES_NAME.sql
 
 echo "Run server..."
 ./manage.py runserver 0.0.0.0:8000
