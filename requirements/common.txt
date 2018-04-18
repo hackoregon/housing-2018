@@ -11,6 +11,7 @@ six==1.11.0
 uritemplate==3.0.0
 responses==0.8.1
 whitenoise==4.0b4
+django-autoslug-iplweb==1.9.4.dev0
 
  # DRF
  djangorestframework==3.7.7
