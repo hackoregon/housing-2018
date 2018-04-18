@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
 && rm -rf /var/lib/apt/lists/*
 
 COPY requirements/*.txt /code/
-RUN pip install -r development.txt
+RUN pip install -r production.txt
 RUN pip install -r geodjango.txt
 
 RUN python
