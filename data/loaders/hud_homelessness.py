@@ -1,8 +1,10 @@
 import re
 import pandas as pd
-#from api.models import HUDHomelessData
+from api.models import HudPitData, HudHicData
 
 class DjangoImport(object):
+    django_model = None
+
     def __init__(self, file_loc):
         """
         Base class to import HUD Homelessness data from an Excel sheet into database via Django ORM.
@@ -27,14 +29,15 @@ class DjangoImport(object):
         self.generate_json and creates objects out of it.
         """
         for body in self.generate_json():
-            obj = HUDHomelessData(**body)
+            obj = self.django_model(**body)
             yield obj
 
     def get_queryset(self):
         """
         Returns all objects that come from this particular import e.g. for sheet A-1 import it will return all objects with source A-1
         """
-        return HUDHomelessData.objects.all()
+        #todo: edit this to include geography
+        return self.django_model.objects.all()
                 
     def generate_json(self):
         raise NotImplementedError("generate_json must be implemented by child class.")
@@ -60,20 +63,22 @@ class DjangoImport(object):
             if query is None:
                 qs = self.get_queryset()
             else:
-                qs = HUDHomelessData.objects.filter(query)
+                qs = django_model.objects.filter(query)
             # delete existing items in index
             qs.delete()
 
         # add new items
-        results = HUDHomelessData.objects.bulk_create(self.generate_objects())
+        results = self.django_model.objects.bulk_create(self.generate_objects())
         return len(results)
         
     def is_valid_value(self, val):
-        if pd.isnull(val) or str(val).strip() in ['', '.', 'na']:
+        if pd.isnull(val) or str(val).strip() in ['', '.', 'na'] or '(' in str(val) or ')' in str(val):
             return False
         return True
 
 class Pit(DjangoImport):
+    django_model = HudPitData
+
     def process_frame(self):
         self.df = pd.read_excel(self.file_loc, sheet_name=None)
 
@@ -98,19 +103,26 @@ class Pit(DjangoImport):
                     continue
                 if ' ' in datapoint:
                     continue
+
                 for c in df.columns[1:]:
                     datatype = re.sub(r'\,\s+' + str(year) + r'$', '', c)
+                    value = row[c]
+                    if not self.is_valid_value(value):
+                        continue
+
                     body = {
                         'year': year,
                         'datapoint': datapoint,
                         'geography': geography,
                         'datatype': datatype,
-                        'value': row[c],
+                        'value': value,
                     }
 
                     yield body
 
 class Hic(DjangoImport):
+    django_model = HudHicData
+
     def process_frame(self):
         dic = {}
 
@@ -134,6 +146,11 @@ class Hic(DjangoImport):
                     dic[sheet] = pd.read_excel(xlsx, header=[0,1], sheet_name=sheet, usecols=use_cols)
 
         self.df = dic
+
+    def generate_objects(self):
+        for body in self.generate_json():
+            obj = HudHicData(**body)
+            yield obj
 
     def generate_json(self):
         if self.file_loc.lower().endswith('by-state.xlsx'):
@@ -192,33 +209,37 @@ class Hic(DjangoImport):
                             #print(datatype, '---->', edited)
                             datatype = edited
                     else:
-                        raise Exception('No match for ' + c2 + ' in ' + c1)
+                        raise Exception('No match for ' + str(c2) + ' in ' + str(c1))
 
                     datatype = re.sub(r'\s{2,}',' ', datatype).strip()
+                    value = row[(c1, c2)]
+                    if not self.is_valid_value(value):
+                        #print(f'value {value} is not valid for ({c1},{c2}), {datapoint}, {year}')
+                        continue
 
                     body = {
                         'year': year,
                         'datapoint': datapoint,
                         'geography': geography,
                         'datatype': datatype,
-                        'shelter_status': shelter_status.replace('&', ','),
-                        'value': row[(c1, c2)],
+                        'shelter_status': shelter_status.replace('&', ',').split(','),
+                        'value': value,
                     }
                     yield body
 
 def load_data():
-    URLS = [
-        'https://www.hudexchange.info/resources/documents/2007-2017-HIC-Counts-by-CoC.XLSX',
-        'https://www.hudexchange.info/resources/documents/2007-2017-HIC-Counts-by-State.xlsx',
-        'https://www.hudexchange.info/resources/documents/2007-2017-PIT-Counts-by-CoC.XLSX',
-        'https://www.hudexchange.info/resources/documents/2007-2017-PIT-Counts-by-State.xlsx',
-    ]
+#    URLS = [
+#        'https://www.hudexchange.info/resources/documents/2007-2017-HIC-Counts-by-CoC.XLSX',
+#        'https://www.hudexchange.info/resources/documents/2007-2017-HIC-Counts-by-State.xlsx',
+#        'https://www.hudexchange.info/resources/documents/2007-2017-PIT-Counts-by-CoC.XLSX',
+#        'https://www.hudexchange.info/resources/documents/2007-2017-PIT-Counts-by-State.xlsx',
+#    ]
 
     URLS = [
-        '/Users/alecpeters/Downloads/2007-2017-HIC-Counts-by-CoC.XLSX',
-        '/Users/alecpeters/Downloads/2007-2017-HIC-Counts-by-State.xlsx',
-        '/Users/alecpeters/Downloads/2007-2017-PIT-Counts-by-CoC.XLSX',
-        '/Users/alecpeters/Downloads/2007-2017-PIT-Counts-by-State.xlsx',
+        'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/2007-2017-HIC-Counts-by-CoC.XLSX',
+        'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/2007-2017-HIC-Counts-by-State.xlsx',
+        'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/2007-2017-PIT-Counts-by-CoC.XLSX',
+        'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/2007-2017-PIT-Counts-by-State.xlsx',
     ]
 
     imports = [
@@ -227,12 +248,13 @@ def load_data():
         Pit(URLS[2]),
         Pit(URLS[3]),
     ]
-
+    
+    ct = 0
     for imp in imports:
         imp.process_frame()
         distinct = []
-        for g in imp.generate_json():
-            distinct.append(g['geography'])
-        print(set(distinct))
+        result = imp.save()
+        ct += result
 
-load_data()
+    print('Loaded ' + ct + ' rows.')
+
