@@ -73,20 +73,31 @@ class DjangoImport(object):
             return False
         return True
 
-URLS = [
-    'https://www.hudexchange.info/resources/documents/2007-2017-HIC-Counts-by-CoC.XLSX',
-    'https://www.hudexchange.info/resources/documents/2007-2017-HIC-Counts-by-State.xlsx',
-    'https://www.hudexchange.info/resources/documents/2007-2017-PIT-Counts-by-CoC.XLSX',
-    'https://www.hudexchange.info/resources/documents/2007-2017-PIT-Counts-by-State.xlsx',
-]
 
-URLS = [
-    '/Users/alecpeters/Downloads/2007-2017-HIC-Counts-by-CoC.XLSX'
-]
-
-class HicByCoc(DjangoImport):
+class Hic(DjangoImport):
     def process_frame(self):
-        self.df = pd.read_excel(self.file_loc, header=[0,1], sheet_name=None)
+        dic = {}
+
+        with pd.ExcelFile(self.file_loc) as xlsx:
+            for sheet in xlsx.sheet_names:
+                try:
+                    dic[sheet] = pd.read_excel(xlsx, header=[0,1], sheet_name=sheet)
+                except ValueError as e:
+                    dic[sheet] = pd.read_excel(xlsx, header=[1], sheet_name=sheet)
+
+                    skip = []
+                    use_cols = []
+                    for i in range(len(dic[sheet].columns)):
+                        if dic[sheet].columns[i].startswith('Unnamed:'):
+                            skip.append(i)
+
+                    for s in skip:
+                        curr = -1 if len(use_cols) == 0 else use_cols[-1] + 1
+                        use_cols += [i for i in range(curr + 1, s)]
+                    use_cols += [i for i in range(use_cols[-1] + 2, len(dic[sheet].columns))]
+                    dic[sheet] = pd.read_excel(xlsx, header=[0,1], sheet_name=sheet, usecols=use_cols)
+
+        self.df = dic
 
     def generate_json(self):
         for key, df in self.df.items():
@@ -152,15 +163,33 @@ class HicByCoc(DjangoImport):
                     yield body
             #break
 
-imports = []
-
 def load_data():
-    for url in URLS:
-        data = HicByCoc(url)
-        data.process_frame()
+    URLS = [
+        'https://www.hudexchange.info/resources/documents/2007-2017-HIC-Counts-by-CoC.XLSX',
+        'https://www.hudexchange.info/resources/documents/2007-2017-HIC-Counts-by-State.xlsx',
+        'https://www.hudexchange.info/resources/documents/2007-2017-PIT-Counts-by-CoC.XLSX',
+        'https://www.hudexchange.info/resources/documents/2007-2017-PIT-Counts-by-State.xlsx',
+    ]
+
+    URLS = [
+        '/Users/alecpeters/Downloads/2007-2017-HIC-Counts-by-CoC.XLSX',
+        '/Users/alecpeters/Downloads/2007-2017-HIC-Counts-by-State.xlsx',
+        '/Users/alecpeters/Downloads/2007-2017-PIT-Counts-by-CoC.XLSX',
+        '/Users/alecpeters/Downloads/2007-2017-PIT-Counts-by-State.xlsx',
+    ]
+
+    imports = [
+        Hic(URLS[0]),
+        Hic(URLS[1]),
+        #Pit(URLS[2]),
+        #Pit(URLS[3]),
+    ]
+
+    for imp in imports:
+        imp.process_frame()
         distinct = []
-        for g in data.generate_json():
-            distinct.append(g['shelter_status'])
+        for g in imp.generate_json():
+            distinct.append(g['datatype'])
         print(set(distinct))
 
 load_data()
