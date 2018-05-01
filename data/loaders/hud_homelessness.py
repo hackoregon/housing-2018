@@ -73,6 +73,42 @@ class DjangoImport(object):
             return False
         return True
 
+class Pit(DjangoImport):
+    def process_frame(self):
+        self.df = pd.read_excel(self.file_loc, sheet_name=None)
+
+    def generate_json(self):
+        if self.file_loc.lower().endswith('by-state.xlsx'):
+            geography = 'state'
+        elif self.file_loc.lower().endswith('by-coc.xlsx'):
+            geography = 'coc'
+        else:
+            raise Exception('Invalid geography')
+
+        for key, df in self.df.items():
+            try:
+                year = int(key)
+            except ValueError:
+                continue
+
+            for ix, row in df.iterrows():
+                try:
+                    datapoint = row[0].strip()
+                except AttributeError:
+                    continue
+                if ' ' in datapoint:
+                    continue
+                for c in df.columns[1:]:
+                    datatype = re.sub(r'\,\s+' + str(year) + r'$', '', c)
+                    body = {
+                        'year': year,
+                        'datapoint': datapoint,
+                        'geography': geography,
+                        'datatype': datatype,
+                        'value': row[c],
+                    }
+
+                    yield body
 
 class Hic(DjangoImport):
     def process_frame(self):
@@ -100,6 +136,13 @@ class Hic(DjangoImport):
         self.df = dic
 
     def generate_json(self):
+        if self.file_loc.lower().endswith('by-state.xlsx'):
+            geography = 'state'
+        elif self.file_loc.lower().endswith('by-coc.xlsx'):
+            geography = 'coc'
+        else:
+            raise Exception('Invalid geography')
+
         for key, df in self.df.items():
             try:
                 year = int(key)
@@ -156,12 +199,12 @@ class Hic(DjangoImport):
                     body = {
                         'year': year,
                         'datapoint': datapoint,
+                        'geography': geography,
                         'datatype': datatype,
                         'shelter_status': shelter_status.replace('&', ','),
                         'value': row[(c1, c2)],
                     }
                     yield body
-            #break
 
 def load_data():
     URLS = [
@@ -181,15 +224,15 @@ def load_data():
     imports = [
         Hic(URLS[0]),
         Hic(URLS[1]),
-        #Pit(URLS[2]),
-        #Pit(URLS[3]),
+        Pit(URLS[2]),
+        Pit(URLS[3]),
     ]
 
     for imp in imports:
         imp.process_frame()
         distinct = []
         for g in imp.generate_json():
-            distinct.append(g['datatype'])
+            distinct.append(g['geography'])
         print(set(distinct))
 
 load_data()
