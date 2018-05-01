@@ -1,21 +1,24 @@
 import re
+from decimal import Decimal
 import pandas as pd
 from api.models import HudPitData, HudHicData
 
 class DjangoImport(object):
     django_model = None
 
-    def __init__(self, file_loc):
+    def __init__(self, file_loc, geography):
         """
         Base class to import HUD Homelessness data from an Excel sheet into database via Django ORM.
         
         Parameters:
             source: name of source sheet in Excel file
-            data_file: pandas ExcelFile object that contains the sheets
+            file_loc: pandas ExcelFile object that contains the sheets
+            geography: geography type of datapoints in this file
 
         """
         self.df = None
         self.file_loc = file_loc
+        self.geography = geography
     
     def process_frame(self):
         """
@@ -36,8 +39,7 @@ class DjangoImport(object):
         """
         Returns all objects that come from this particular import e.g. for sheet A-1 import it will return all objects with source A-1
         """
-        #todo: edit this to include geography
-        return self.django_model.objects.all()
+        return self.django_model.objects.filter(geography=self.geography)
                 
     def generate_json(self):
         raise NotImplementedError("generate_json must be implemented by child class.")
@@ -72,9 +74,17 @@ class DjangoImport(object):
         return len(results)
         
     def is_valid_value(self, val):
-        if pd.isnull(val) or str(val).strip() in ['', '.', 'na'] or '(' in str(val) or ')' in str(val):
+        try: 
+            val = val.replace('%', '')
+        except:
+            pass
+        try:
+            d = Decimal(val)
+            if pd.isnull(val):
+                return False
+            return True
+        except:
             return False
-        return True
 
 class Pit(DjangoImport):
     django_model = HudPitData
@@ -83,13 +93,6 @@ class Pit(DjangoImport):
         self.df = pd.read_excel(self.file_loc, sheet_name=None)
 
     def generate_json(self):
-        if self.file_loc.lower().endswith('by-state.xlsx'):
-            geography = 'state'
-        elif self.file_loc.lower().endswith('by-coc.xlsx'):
-            geography = 'coc'
-        else:
-            raise Exception('Invalid geography')
-
         for key, df in self.df.items():
             try:
                 year = int(key)
@@ -113,7 +116,7 @@ class Pit(DjangoImport):
                     body = {
                         'year': year,
                         'datapoint': datapoint,
-                        'geography': geography,
+                        'geography': self.geography,
                         'datatype': datatype,
                         'value': value,
                     }
@@ -153,13 +156,6 @@ class Hic(DjangoImport):
             yield obj
 
     def generate_json(self):
-        if self.file_loc.lower().endswith('by-state.xlsx'):
-            geography = 'state'
-        elif self.file_loc.lower().endswith('by-coc.xlsx'):
-            geography = 'coc'
-        else:
-            raise Exception('Invalid geography')
-
         for key, df in self.df.items():
             try:
                 year = int(key)
@@ -220,7 +216,7 @@ class Hic(DjangoImport):
                     body = {
                         'year': year,
                         'datapoint': datapoint,
-                        'geography': geography,
+                        'geography': self.geography,
                         'datatype': datatype,
                         'shelter_status': shelter_status.replace('&', ',').split(','),
                         'value': value,
@@ -243,10 +239,10 @@ def load_data():
     ]
 
     imports = [
-        Hic(URLS[0]),
-        Hic(URLS[1]),
-        Pit(URLS[2]),
-        Pit(URLS[3]),
+        Hic(URLS[0], geography='coc'),
+        Hic(URLS[1], geography='state'),
+        Pit(URLS[2], geography='coc'),
+        Pit(URLS[3], geography='state'),
     ]
     
     ct = 0
@@ -256,5 +252,5 @@ def load_data():
         result = imp.save()
         ct += result
 
-    print('Loaded ' + ct + ' rows.')
+    print(f'Loaded {ct} rows.')
 
