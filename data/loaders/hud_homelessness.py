@@ -69,8 +69,7 @@ class DjangoImport(object):
             # delete existing items in index
             qs.delete()
 
-        # add new items
-        results = self.django_model.objects.bulk_create(self.generate_objects())
+        results = self.django_model.objects.bulk_create(self.generate_objects(), batch_size=10000)
         return len(results)
         
     def is_valid_value(self, val):
