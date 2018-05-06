@@ -1,0 +1,19 @@
+sudo: required
+
+language: python
+python:
+  - "3.6"
+
+services:
+  - docker
+
+install:
+  - pip install --upgrade --user awscli
+
+script:
+  - ./bin/build.sh -p
+  #- docker-compose -f production-docker-compose.yml run --entrypoint "./manage.py collectstatic --noinput" api_production
+  - ./bin/test.sh -p
+
+#after_success:
+#  - ./bin/deploy.sh
