@@ -1,15 +1,16 @@
 from django.core.exceptions import FieldDoesNotExist
+from django.contrib.postgres.fields import ArrayField
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
-from api.models import JCHSData
-from api.serializers import JCHSDataSerializer
+from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData
+from api.serializers import JCHSDataSerializer, HudPitDataSerializer, HudHicDataSerializer, UrbanInstituteRentalCrisisDataSerializer
+from django_filters import rest_framework as filters
 
 class JCHSDataViewSet(viewsets.ModelViewSet):
     queryset = JCHSData.objects.all()
     serializer_class = JCHSDataSerializer
-#filter_backends = (,)
-    search_fields = '__all__'
+#filter_backends = (,) search_fields = '__all__'
     filter_fields = ['datatype_clean', 'datapoint_clean', 'valuetype_clean', 'source', 'date']
     ordering_fields = '__all__'
 
@@ -38,5 +39,33 @@ class JCHSDataViewSet(viewsets.ModelViewSet):
 
         return Response(result)
 
-            
+class HudPitDataViewSet(viewsets.ModelViewSet):            
+    queryset = HudPitData.objects.all()
+    serializer_class = HudPitDataSerializer
+    filter_fields = '__all__'
+    ordering_fields = '__all__'
 
+class HudHicDataFilter(filters.FilterSet):
+    class Meta:
+        model = HudHicData
+        fields = '__all__'
+        filter_overrides = {
+            ArrayField: {
+                'filter_class': filters.CharFilter,
+                'extra': lambda f: {
+                    'lookup_expr': 'icontains',
+                },
+            },
+        }
+
+class HudHicDataViewSet(viewsets.ModelViewSet):            
+    queryset = HudHicData.objects.all()
+    serializer_class = HudHicDataSerializer
+    filter_class = HudHicDataFilter
+    ordering_fields = '__all__'
+
+class UrbanInstituteRentalCrisisDataViewSet(viewsets.ModelViewSet):            
+    queryset = UrbanInstituteRentalCrisisData.objects.all()
+    serializer_class = UrbanInstituteRentalCrisisDataSerializer
+    filter_fields = '__all__'
+    ordering_fields = '__all__'
