@@ -57,20 +57,20 @@ class UrbanInstituteRentalCrisisData(models.Model):
 
 
     def aaa_units_per_100(self):
-        return aaa_units / eli_renters * 100
+        return self.aaa_units / self.eli_renters * 100
 
     def noasst_units_per_100(self):
-        return noasst_units / eli_renters * 100
+        return self.noasst_units / self.eli_renters * 100
 
     def hud_units_per_100(self):
-        return hud_units / eli_renters * 100
+        return self.hud_units / self.eli_renters * 100
 
     def usda_units_per_100(self):
-        return usda_units / eli_renters * 100
+        return self.usda_units / self.eli_renters * 100
 
     def no_hud_units_per_100(self):
-        return no_hud_units / eli_renters * 100
+        return self.no_hud_units / self.eli_renters * 100
 
     def no_usda_units_per_100(self):
-        return no_usda_units / eli_renters * 100
+        return self.no_usda_units / self.eli_renters * 100
 
