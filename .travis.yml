@@ -15,5 +15,5 @@ script:
   #- docker-compose -f production-docker-compose.yml run --entrypoint "./manage.py collectstatic --noinput" api_production
   - ./bin/test.sh -p
 
-#after_success:
-#  - ./bin/deploy.sh
+after_success:
+  - ./bin/deploy.sh

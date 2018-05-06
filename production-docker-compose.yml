@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: DOCKERFILE.api.production
-    image: housing-affordability-service
+    image: "${DOCKER_REPO}/${DEPLOY_TARGET}/${DOCKER_IMAGE}:latest"
     command: ./bin/production-docker-entrypoint.sh
     volumes:
       - .:/code
@@ -18,4 +18,4 @@ services:
       - POSTGRES_HOST=${PRODUCTION_POSTGRES_HOST}
       - POSTGRES_PORT=${PRODUCTION_POSTGRES_PORT}
       - POSTGRES_PASSWORD=${PRODUCTION_POSTGRES_PASSWORD}
-      - PRODUCTION_DJANGO_SECRET_KEY
+      - DJANGO_SECRET_KEY=${PRODUCTION_DJANGO_SECRET_KEY}
