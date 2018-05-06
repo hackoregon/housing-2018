@@ -40,3 +40,37 @@ class HudHicData(models.Model):
     datapoint_clean = AutoSlugField(populate_from='datapoint', max_length=100)
     datatype_clean = AutoSlugField(populate_from='datatype', max_length=100)
     
+class UrbanInstituteRentalCrisisData(models.Model):
+    year = models.PositiveSmallIntegerField(help_text='Year of data')
+    eli_limit = models.DecimalField(max_digits=9, decimal_places=2, help_text='HUD ELI limit for family of four in the county')
+    county_fips = models.CharField(max_length=10, help_text='County FIPS code')
+    county_name = models.CharField(max_length=255, help_text='County name')
+    state_name = models.CharField(max_length=255, help_text='State name')
+    is_state_data = models.BooleanField()
+    eli_renters = models.DecimalField(max_digits=11, decimal_places=2, help_text='Number of ELI renters in the county')
+    aaa_units = models.DecimalField(max_digits=11, decimal_places=2, help_text='Number of affordable, adequate, and available units in the county')
+    noasst_units = models.DecimalField(max_digits=11, decimal_places=2, help_text='Number of units paying less than 30% of income on rent and utilities, excluding units with project-based rental assistance')
+    hud_units = models.DecimalField(max_digits=11, decimal_places=2, help_text='Number of units subsidized by HUD rental assistance, excluding units that were affordable before assistance')
+    usda_units = models.DecimalField(max_digits=11, decimal_places=2, help_text='Number of units subsidized by USDA rental assistance. Imputed for 2000 data.')
+    no_hud_units = models.DecimalField(max_digits=11, decimal_places=2, help_text='Number of affordable, adequate, and available units without HUD rental assistance')
+    no_usda_units = models.DecimalField(max_digits=11, decimal_places=2, help_text='Number of affordable, adequate, and available units without USDA rental assistance')
+
+
+    def aaa_units_per_100(self):
+        return aaa_units / eli_renters * 100
+
+    def noasst_units_per_100(self):
+        return noasst_units / eli_renters * 100
+
+    def hud_units_per_100(self):
+        return hud_units / eli_renters * 100
+
+    def usda_units_per_100(self):
+        return usda_units / eli_renters * 100
+
+    def no_hud_units_per_100(self):
+        return no_hud_units / eli_renters * 100
+
+    def no_usda_units_per_100(self):
+        return no_usda_units / eli_renters * 100
+
