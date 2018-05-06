@@ -3,9 +3,6 @@ usage() { echo "Usage: $0 [-d] for a development test, [-p] for production test"
 
 if [ $# == 0 ]; then usage; fi
 
-# Set environment variables
-. ./.env
-
 while getopts ":dp" opt; do
     case "$opt" in
         d)
