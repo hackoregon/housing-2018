@@ -114,11 +114,11 @@ if DEBUG == False:
     DATABASES = {
         'default': {
             'ENGINE': 'django_db_geventpool.backends.postgresql_psycopg2',
-            'PASSWORD': os.environ.get('PRODUCTION_POSTGRES_PASSWORD'),
-            'NAME': os.environ.get('PRODUCTION_POSTGRES_NAME'),
-            'USER': os.environ.get('PRODUCTION_POSTGRES_USER'),
-            'HOST': os.environ.get('PRODUCTION_POSTGRES_HOST'),
-            'PORT': os.environ.get('PRODUCTION_POSTGRES_PORT'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+            'NAME': os.environ.get('POSTGRES_NAME'),
+            'USER': os.environ.get('POSTGRES_USER'),
+            'HOST': os.environ.get('POSTGRES_HOST'),
+            'PORT': os.environ.get('POSTGRES_PORT'),
             'CONN_MAX_AGE': 0,
             'OPTIONS': {
                 'MAX_CONNS': 20
