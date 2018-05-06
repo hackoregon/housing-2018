@@ -88,13 +88,14 @@ class UrbanInstituteImport(DjangoImport):
     def process_frame(self):
         df = pd.read_csv(self.file_loc, encoding='iso-8859-1')
         df.columns = [c.lower() for c in df.columns]
-        #print(df[pd.isnull(df['countyname'])])
         self.df = df
 
     def generate_json(self):
         for ix, row in self.df.iterrows():
-            state_flag = str(row['state_flag']) != '0'
-
+            state_flag = row['state_flag'] != 0
+            eli_limit = row['l30_4']
+            if pd.isnull(eli_limit):
+                continue
             eli_renters = row['st_total' if state_flag else 'total']
             aaa_units = row['st_units' if state_flag else 'units']
             noasst_units = row['st_unitsnoasst' if state_flag else 'unitsnoasst']
@@ -105,19 +106,20 @@ class UrbanInstituteImport(DjangoImport):
                 
             body = {
                 'year': self.year,
-                'eli_limit': row['l30_4'],
+                'eli_limit': eli_limit if pd.notnull(eli_limit) else None,
                 'county_fips': row['county'],
                 'county_name': row['countyname'],
                 'state_name': row['state_name'], 
                 'is_state_data': state_flag,
-                'eli_renters': eli_renters, 
-                'aaa_units': aaa_units,
-                'noasst_units': noasst_units, 
-                'hud_units': hud_units,
-                'usda_units': usda_units,
-                'no_hud_units': no_hud_units,
-                'no_usda_units': no_usda_units,
+                'eli_renters': eli_renters if pd.notnull(eli_renters) else None, 
+                'aaa_units': aaa_units if pd.notnull(aaa_units) else None,
+                'noasst_units': noasst_units if pd.notnull(noasst_units) else None, 
+                'hud_units': hud_units if pd.notnull(hud_units) else None,
+                'usda_units': usda_units if pd.notnull(usda_units) else None,
+                'no_hud_units': no_hud_units if pd.notnull(no_hud_units) else None,
+                'no_usda_units': no_usda_units if pd.notnull(no_usda_units) else None,
             }
+
             yield body
 
 def load_data():
