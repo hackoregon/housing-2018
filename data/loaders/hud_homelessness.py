@@ -37,17 +37,13 @@ class DjangoImport(object):
 
     def get_queryset(self):
         """
-        Returns all objects that come from this particular import e.g. for sheet A-1 import it will return all objects with source A-1
+        Returns all objects that come from this particular import
         """
         return self.django_model.objects.filter(geography=self.geography)
                 
     def generate_json(self):
         raise NotImplementedError("generate_json must be implemented by child class.")
 
-    def get_base_frame(self, columns=None):
-        # read sheet into dataframe
-        return pd.read_excel(self.file_loc, sheet_name=self.source, header=headers[self.source], index_col=0, usecols=columns)
-        
     def save(self, delete_existing=True, query=None):
         """
         Adds the dataframe to the database via the Django ORM using self.generate_objects to generate Django objects.
