@@ -1,10 +1,10 @@
 import pytest
 import os
-import civic_api
+import civic_project
 
 @pytest.fixture(scope='session')
 def django_db_setup():
-    civic_api.settings.DATABASES['default'] = {
+    civic_project.settings.DATABASES['default'] = {
         'ENGINE': 'django_db_geventpool.backends.postgresql_psycopg2',
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
         'NAME': os.environ.get('POSTGRES_NAME'),
