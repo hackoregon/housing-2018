@@ -1,4 +1,5 @@
-from django.test import TestCase, Client
+from django.test import TestCase
+from rest_framework.test import APIClient
 from api.models import JCHSData
 from rest_framework import status
 import pytest
@@ -10,7 +11,7 @@ class APIEndpoints(TestCase):
     """ Tests for generic API endpoints """
 
     def setup(self):
-        self.client = Client()
+        self.client = APIClient()
 
     def test_schema_endpoint(self):
         response = self.client.get('/schema/')
@@ -35,7 +36,7 @@ class TestJCHSDataEndpoints(TestCase):
     #fixtures = ['harvardjchs']
 
     def setup(self):
-        self.client = Client()
+        self.client = APIClient()
 
     @pytest.mark.django_db
     def test_list_endpoint(self):
