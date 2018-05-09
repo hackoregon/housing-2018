@@ -1,6 +1,6 @@
 import pytest
 import os
-import crash_data_api
+import civic_api
 
 @pytest.fixture(scope='session')
 def django_db_setup():
