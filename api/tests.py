@@ -1,6 +1,5 @@
 from django.test import TestCase, Client
 from api.models import JCHSData
-from rest_framework.test import APIClient
 from rest_framework import status
 
 class JCHSDataTest(TestCase):
