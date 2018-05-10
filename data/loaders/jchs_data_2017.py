@@ -537,12 +537,13 @@ class ImportW16(DjangoImport):
                     value_type = 'percent'
                 elif key.startswith('Change in Share'):
                     value_type = 'percentage points'
-                elif key in ['Estimated Number of Renter Households by Rent Level', 'Sample Size']:
+                elif key == 'Estimated Number of Renter Households by Rent Level':
+                    value_type = 'count'
+                    key = '{}, Real Gross Rents {}'.format(key, ser_ix[1])                
+                elif key == 'Sample Size':
                     value_type = 'count'
                 else:
                     raise Exception("No value_type found.")
-                if key != 'Sample Size':
-                    key = '{}, Real Gross Rents {}'.format(key, ser_ix[1])                
                     
                 time = datetime(ix[0], 1, 1, tzinfo=pytz.utc)
                 body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
