@@ -8,7 +8,6 @@ WORKDIR /code
 RUN apt-get update && apt-get install -y \
   binutils \
   gdal-bin \
-  libgeos-dev \
   libproj-dev \
   postgresql-client \
 && rm -rf /var/lib/apt/lists/*
@@ -19,3 +18,5 @@ RUN pip install -r geodjango.txt
 
 RUN python
 COPY . /code/
+ENTRYPOINT [ "/code/bin/production-docker-entrypoint.sh" ]
+

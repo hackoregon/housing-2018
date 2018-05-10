@@ -1,11 +1,10 @@
 version: '3.4'
 services:
-  api_production:
+  housing-affordability-service:
     build:
       context: .
       dockerfile: DOCKERFILE.api.production
-    image: api_production
-    command: ./bin/production-docker-entrypoint.sh
+    image: "${DOCKER_REPO}/${DEPLOY_TARGET}/${DOCKER_IMAGE}:latest"
     volumes:
       - .:/code
     ports:

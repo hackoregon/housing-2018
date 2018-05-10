@@ -11,4 +11,5 @@ done
 
 >&2 echo "Postgres is up"
 
-./manage.py test
+#./manage.py test
+pytest
