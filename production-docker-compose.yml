@@ -5,7 +5,6 @@ services:
       context: .
       dockerfile: DOCKERFILE.api.production
     image: "${DOCKER_REPO}/${DEPLOY_TARGET}/${DOCKER_IMAGE}:latest"
-    command: ./bin/production-docker-entrypoint.sh
     volumes:
       - .:/code
     ports:
