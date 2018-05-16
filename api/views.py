@@ -7,11 +7,20 @@ from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCri
 from api.serializers import JCHSDataSerializer, HudPitDataSerializer, HudHicDataSerializer, UrbanInstituteRentalCrisisDataSerializer
 from django_filters import rest_framework as filters
 
+class JCHSDataFilter(filters.FilterSet):
+    datatype = filters.CharFilter(name='datatype_clean', lookup_expr='icontains')
+    datapoint = filters.CharFilter(name='datapoint_clean', lookup_expr='icontains')
+    valuetype = filters.CharFilter(name='valuetype_clean', lookup_expr='icontains')
+    source = filters.CharFilter(lookup_expr='iexact')
+
+    class Meta:
+        model = JCHSData
+        fields = ['datatype', 'datapoint', 'valuetype', 'source', 'date']
+
 class JCHSDataViewSet(viewsets.ModelViewSet):
     queryset = JCHSData.objects.all()
     serializer_class = JCHSDataSerializer
-#filter_backends = (,) search_fields = '__all__'
-    filter_fields = ['datatype_clean', 'datapoint_clean', 'valuetype_clean', 'source', 'date']
+    filter_class = JCHSDataFilter
     ordering_fields = '__all__'
 
     @list_route()
@@ -64,8 +73,21 @@ class HudHicDataViewSet(viewsets.ModelViewSet):
     filter_class = HudHicDataFilter
     ordering_fields = '__all__'
 
+class CharInFilter(filters.BaseInFilter, filters.CharFilter):
+    pass
+
+class UrbanInstituteRentalCrisisDataFilter(filters.FilterSet):
+    county_name__in = CharInFilter(name='county_name', lookup_expr='in')
+    county_fips__in = CharInFilter(name='county_fips', lookup_expr='in')
+    county_name = filters.CharFilter(lookup_expr='iexact')
+    state_name = filters.CharFilter(lookup_expr='iexact')
+
+    class Meta:
+        model = UrbanInstituteRentalCrisisData
+        fields = '__all__'
+
 class UrbanInstituteRentalCrisisDataViewSet(viewsets.ModelViewSet):            
     queryset = UrbanInstituteRentalCrisisData.objects.all()
     serializer_class = UrbanInstituteRentalCrisisDataSerializer
-    filter_fields = '__all__'
+    filter_class = UrbanInstituteRentalCrisisDataFilter
     ordering_fields = '__all__'

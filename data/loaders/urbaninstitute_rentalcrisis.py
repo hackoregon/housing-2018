@@ -103,12 +103,15 @@ class UrbanInstituteImport(DjangoImport):
             usda_units = row['st_usda' if state_flag else 'usda']
             no_hud_units = row['st_units_no_hud' if state_flag else 'units_no_hud']
             no_usda_units = row['st_units_no_usda' if state_flag else 'units_no_usda']
+            county_name = row['countyname']
+            if not county_name.lower().endswith('county'):
+                county_name = county_name + ' County'
                 
             body = {
                 'year': self.year,
                 'eli_limit': eli_limit if pd.notnull(eli_limit) else None,
                 'county_fips': row['county'],
-                'county_name': row['countyname'],
+                'county_name': county_name,
                 'state_name': row['state_name'], 
                 'is_state_data': state_flag,
                 'eli_renters': eli_renters if pd.notnull(eli_renters) else None, 
