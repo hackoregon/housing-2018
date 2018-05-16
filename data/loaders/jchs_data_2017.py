@@ -535,15 +535,17 @@ class ImportW16(DjangoImport):
                     value_type = 'rank'
                 elif key == 'Share of Units by Real Rent Level':
                     value_type = 'percent'
-                elif key.startswith('Change in Share'):
+                elif key == 'Change in Share of Units by Real Rent Level, 2005–2015':
                     value_type = 'percentage points'
                 elif key == 'Estimated Number of Renter Households by Rent Level':
                     value_type = 'count'
-                    key = '{}, Real Gross Rents {}'.format(key, ser_ix[1])                
                 elif key == 'Sample Size':
                     value_type = 'count'
                 else:
                     raise Exception("No value_type found.")
+
+                if key in ['Share of Units by Real Rent Level','Estimated Number of Renter Households by Rent Level','Change in Share of Units by Real Rent Level, 2005–2015']:
+                    key = '{}, Real Gross Rents {}'.format(key, ser_ix[1])                
                     
                 time = datetime(ix[0], 1, 1, tzinfo=pytz.utc)
                 body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
