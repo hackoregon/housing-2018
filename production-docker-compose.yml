@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: DOCKERFILE.api.production
-    image: "${DOCKER_REPO}/${DEPLOY_TARGET}/${DOCKER_IMAGE}:latest"
+    image: $PRODUCTION_DOCKER_IMAGE
     volumes:
       - .:/code
     ports:
