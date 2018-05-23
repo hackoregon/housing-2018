@@ -8,6 +8,8 @@ router.register(r'harvardjchs', views.JCHSDataViewSet)
 router.register(r'homelessness/pit', views.HudPitDataViewSet)
 router.register(r'homelessness/hic', views.HudHicDataViewSet)
 router.register(r'rentalcrisis', views.UrbanInstituteRentalCrisisDataViewSet)
+router.register(r'policies', views.PolicyViewSet)
+router.register(r'programs', views.ProgramViewSet)
 
 schema_view = get_swagger_view(title='Housing API')
 

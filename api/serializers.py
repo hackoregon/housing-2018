@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData
+from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program
 
 class JCHSDataSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,3 +20,13 @@ class UrbanInstituteRentalCrisisDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = UrbanInstituteRentalCrisisData
         fields = ('id','year','eli_limit','county_fips','county_name','state_name','is_state_data','eli_renters','aaa_units','noasst_units','hud_units','usda_units','no_hud_units','no_usda_units','aaa_units_per_100','noasst_units_per_100','hud_units_per_100','usda_units_per_100','no_hud_units_per_100','no_usda_units_per_100')
+
+class PolicySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Policy
+        fields = ('policy_id','policy_type','description','category','link1','link1_name','link2','link2_name','link3','link3_name')
+
+class ProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = ('policy','name','description','government_entity','year_implemented','link1','link1_name','link2','link2_name','link3','link3_name')
