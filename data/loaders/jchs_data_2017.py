@@ -335,7 +335,9 @@ class ImportW7(DjangoImport):
                     key += ' from ' + time
                 dp = ix.replace('Metro Area', '').strip()
                 time = datetime(2016, 12, 1, tzinfo=pytz.utc)
-                body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': '2016 dollars' }
+                body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': 'percent change' }
+                if ser_ix[1] == 'Real':
+                    body['valuetype'] = 'percent change, 2016 dollars'
                 yield body
 
 
