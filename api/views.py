@@ -54,7 +54,7 @@ class HudPitDataFilter(filters.FilterSet):
     geography = filters.CharFilter(lookup_expr='iexact')
 
     class Meta:
-        model = HidPitData
+        model = HudPitData
         fields = ['datatype','datapoint','geography','year']
 
 class HudPitDataViewSet(viewsets.ModelViewSet):            
