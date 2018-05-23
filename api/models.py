@@ -86,6 +86,10 @@ class Policy(models.Model):
     link3 = models.CharField(max_length=255, null=True, blank=True)
     link3_name = models.CharField(max_length=255, null=True, blank=True)
 
+    # clean fields for URL filtering
+    policy_type_clean = AutoSlugField(populate_from='policy_type', max_length=100)
+    category_clean = AutoSlugField(populate_from='category', max_length=100)
+
 class Program(models.Model):
     policy = models.ForeignKey(Policy, on_delete=models.CASCADE)
     name = models.CharField(max_length=255, null=True, blank=True)
@@ -99,3 +103,6 @@ class Program(models.Model):
     link3 = models.CharField(max_length=255, null=True, blank=True)
     link3_name = models.CharField(max_length=255, null=True, blank=True)
 
+    # clean fields for URL filtering
+    name_clean = AutoSlugField(populate_from='name', max_length=100)
+    government_entity_clean = AutoSlugField(populate_from='government_entity', max_length=100)
