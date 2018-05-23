@@ -74,3 +74,28 @@ class UrbanInstituteRentalCrisisData(models.Model):
     def no_usda_units_per_100(self):
         return self.no_usda_units / self.eli_renters * 100
 
+class Policy(models.Model):
+    policy_id = models.CharField(max_length=5, primary_key=True)
+    policy_type = models.CharField(max_length=255)
+    description = models.TextField()
+    category = models.CharField(max_length=100)
+    link1 = models.CharField(max_length=255, null=True, blank=True)
+    link1_name = models.CharField(max_length=255, null=True, blank=True)
+    link2 = models.CharField(max_length=255, null=True, blank=True)
+    link2_name = models.CharField(max_length=255, null=True, blank=True)
+    link3 = models.CharField(max_length=255, null=True, blank=True)
+    link3_name = models.CharField(max_length=255, null=True, blank=True)
+
+class Program(models.Model):
+    policy = models.ForeignKey(Policy, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    government_entity = models.CharField(max_length=255)
+    year_implemented = models.PositiveSmallIntegerField(null=True, blank=True)
+    link1 = models.CharField(max_length=255, null=True, blank=True)
+    link1_name = models.CharField(max_length=255, null=True, blank=True)
+    link2 = models.CharField(max_length=255, null=True, blank=True)
+    link2_name = models.CharField(max_length=255, null=True, blank=True)
+    link3 = models.CharField(max_length=255, null=True, blank=True)
+    link3_name = models.CharField(max_length=255, null=True, blank=True)
+
