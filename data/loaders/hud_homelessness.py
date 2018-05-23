@@ -119,7 +119,7 @@ class Pit(DjangoImport):
                         'value': value,
                     }
                     if coc_name:
-                        body['coc_name'] = coc_name
+                        body['datapoint'] = body['datapoint'] + ': ' + coc_name
 
                     yield body
 
