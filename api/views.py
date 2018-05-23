@@ -48,10 +48,19 @@ class JCHSDataViewSet(viewsets.ModelViewSet):
 
         return Response(result)
 
+class HudPitDataFilter(filters.FilterSet):
+    datatype = filters.CharFilter(name='datatype_clean', lookup_expr='icontains')
+    datapoint = filters.CharFilter(name='datapoint_clean', lookup_expr='icontains')
+    geography = filters.CharFilter(lookup_expr='iexact')
+
+    class Meta:
+        model = HudPitData
+        fields = ['datatype','datapoint','geography','year']
+
 class HudPitDataViewSet(viewsets.ModelViewSet):            
     queryset = HudPitData.objects.all()
     serializer_class = HudPitDataSerializer
-    filter_fields = '__all__'
+    filter_class = HudPitDataFilter
     ordering_fields = '__all__'
 
 class HudHicDataFilter(filters.FilterSet):
