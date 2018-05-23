@@ -3,8 +3,8 @@ from django.contrib.postgres.fields import ArrayField
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
-from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData
-from api.serializers import JCHSDataSerializer, HudPitDataSerializer, HudHicDataSerializer, UrbanInstituteRentalCrisisDataSerializer
+from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program
+from api.serializers import JCHSDataSerializer, HudPitDataSerializer, HudHicDataSerializer, UrbanInstituteRentalCrisisDataSerializer, PolicySerializer, ProgramSerializer
 from django_filters import rest_framework as filters
 
 class JCHSDataFilter(filters.FilterSet):
@@ -91,3 +91,33 @@ class UrbanInstituteRentalCrisisDataViewSet(viewsets.ModelViewSet):
     serializer_class = UrbanInstituteRentalCrisisDataSerializer
     filter_class = UrbanInstituteRentalCrisisDataFilter
     ordering_fields = '__all__'
+
+class PolicyFilter(filters.FilterSet):
+    policy_id = filters.CharFilter(lookup_expr='iexact')
+    policy_type = filters.CharFilter(name='policy_type_clean', lookup_expr='iexact')
+    category = filters.CharFilter(name='category_clean', lookup_expr='iexact')
+
+    class Meta:
+        model = Policy
+        fields = '__all__'
+
+class ProgramFilter(filters.FilterSet):
+    name = filters.CharFilter(name='name_clean', lookup_expr='iexact')
+    government_entity = filters.CharFilter(name='government_entity_clean', lookup_expr='iexact')
+    policy = filters.CharFilter(name='policy__policy_id', lookup_expr='iexact')
+
+    class Meta:
+        model = Program
+        fields = '__all__'
+
+class PolicyViewSet(viewsets.ModelViewSet):
+    queryset = Policy.objects.all()
+    serializer_class = PolicySerializer
+    filter_class = PolicyFilter
+    order_fields = '__all__'
+
+class ProgramViewSet(viewsets.ModelViewSet):
+    queryset = Program.objects.all()
+    serializer_class = ProgramSerializer
+    filter_class = ProgramFilter
+    order_fields = '__all__'

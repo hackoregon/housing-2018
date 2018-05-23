@@ -13,6 +13,8 @@ class PolicyImport(DjangoImport):
 
     def generate_json(self):
         for ix, row in self.data.iterrows():
+            if pd.isnull(row['ID']):
+                continue
             body = {
                 'policy_id': row['ID'],
                 'policy_type': row['Policy_Type'],
@@ -71,6 +73,7 @@ class ProgramImport(DjangoImport):
                 'government_entity': row['Government_Entity'],
                 'year_implemented': time,
                 'link1': row['Link to program'] if pd.notnull(row['Link to program']) else None,
+                'link2': row['Link to program 2'] if pd.notnull(row['Link to program 2']) else None,
             }
             yield body
 
