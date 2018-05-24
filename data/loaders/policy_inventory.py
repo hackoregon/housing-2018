@@ -49,7 +49,7 @@ class ProgramImport(DjangoImport):
                 name = None
             
             try:
-                desc = row['Program_Implementation_Description'].strip()
+                desc = row['Program_Description'].strip()
                 if desc.lower() == 'none':
                     desc = None
             except:
