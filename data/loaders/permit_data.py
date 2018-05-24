@@ -1,7 +1,6 @@
 from django.contrib.gis.utils import LayerMapping
 from api.models import PermitData
 
-
 file_location = 'data/Residential_Building_Permits.geojson.json'
 
 mapping = {
@@ -34,6 +33,7 @@ mapping = {
 }
 
 def run(verbose=True):
+    PermitData.objects.all().delete()
     lm = LayerMapping(PermitData, file_location, mapping, transform=False, encoding='iso-8859-1')
     lm.save(strict=True, verbose=verbose)
     
