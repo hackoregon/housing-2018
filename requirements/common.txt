@@ -13,10 +13,13 @@ responses==0.8.1
 whitenoise==4.0b4
 django-autoslug-iplweb==1.9.4.dev0
 
- # DRF
- djangorestframework==3.7.7
+# DRF
+djangorestframework==3.7.7
 
- #Django filters
+# DRF GeoJson
+djangorestframework-gis==0.12
+
+# Django filters
 django-filter==1.1.0
 
  # DB connector
@@ -25,10 +28,10 @@ psycopg2==2.7.3.2
 # Swagger
 coreapi==2.3.3
 openapi-codec==1.3.2
-django-rest-swagger
+django-rest-swagger==2.2.0
 
 # Testing
 coverage==4.4.2
 django-nose==1.4.5
 nose==1.3.7
-pytest-django
+pytest-django==3.2.1

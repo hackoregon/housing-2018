@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.gis.db import models as geo_models
 from autoslug import AutoSlugField
 
 class JCHSData(models.Model):
@@ -106,3 +107,32 @@ class Program(models.Model):
     # clean fields for URL filtering
     name_clean = AutoSlugField(populate_from='name', max_length=100)
     government_entity_clean = AutoSlugField(populate_from='government_entity', max_length=100)
+
+class PermitData(models.Model):
+    in_date = models.DateTimeField(null=True, blank=True)
+    issue_date = models.DateTimeField()
+    status = models.CharField(max_length=255)
+    year = models.PositiveSmallIntegerField()
+    new_class = models.CharField(max_length=255)
+    new_type = models.CharField(max_length=255)
+    neighborhood = models.CharField(max_length=255)
+    pdx_bnd = models.CharField(max_length=255)
+    is_adu = models.CharField(max_length=5)
+    rev = models.CharField(max_length=255)
+    folder_number = models.CharField(max_length=20)
+    property_address = models.CharField(max_length=255)
+    work_description = models.TextField()
+    sub = models.CharField(max_length=255)
+    occ = models.CharField(max_length=255)
+    new_units = models.PositiveSmallIntegerField()
+    folder_des = models.CharField(max_length=255)
+    valuation = models.DecimalField(max_digits=19, decimal_places=2)
+    const = models.CharField(max_length=255)
+    proplot = models.CharField(max_length=255)
+    propgisid1 = models.CharField(max_length=255)
+    property_ro = models.CharField(max_length=255)
+    folder_rsn = models.IntegerField()
+    x_coord = models.DecimalField(max_digits=19, decimal_places=6)
+    y_coord = models.DecimalField(max_digits=19, decimal_places=6)
+
+    point = geo_models.PointField()

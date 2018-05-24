@@ -1,10 +1,11 @@
 from django.core.exceptions import FieldDoesNotExist
+from django.core.serializers import serialize
 from django.contrib.postgres.fields import ArrayField
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
-from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program
-from api.serializers import JCHSDataSerializer, HudPitDataSerializer, HudHicDataSerializer, UrbanInstituteRentalCrisisDataSerializer, PolicySerializer, ProgramSerializer
+from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program, PermitData
+from api.serializers import JCHSDataSerializer, HudPitDataSerializer, HudHicDataSerializer, UrbanInstituteRentalCrisisDataSerializer, PolicySerializer, ProgramSerializer, PermitDataSerializer
 from django_filters import rest_framework as filters
 
 class JCHSDataFilter(filters.FilterSet):
@@ -130,3 +131,22 @@ class ProgramViewSet(viewsets.ModelViewSet):
     serializer_class = ProgramSerializer
     filter_class = ProgramFilter
     order_fields = '__all__'
+
+class PermitDataFilter(filters.FilterSet):
+    new_class = filters.CharFilter(lookup_expr='iexact')
+    new_type = filters.CharFilter(lookup_expr='iexact')
+    status = filters.CharFilter(lookup_expr='iexact')
+    is_adu = filters.CharFilter(lookup_expr='iexact')
+    property_address = filters.CharFilter(lookup_expr='icontains')
+    neighborhood = filters.CharFilter(lookup_expr='iexact')
+    work_description = filters.CharFilter(lookup_expr='iexact')
+
+    class Meta:
+        model = PermitData
+        fields = ('new_class','new_type','status','is_adu','property_address','neighborhood','work_description','year')
+
+class PermitDataViewSet(viewsets.ModelViewSet):
+    queryset = PermitData.objects.all()
+    serializer_class = PermitDataSerializer
+    filter_class = PermitDataFilter
+
