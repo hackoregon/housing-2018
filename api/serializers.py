@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
+from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program, PermitData
 
 class JCHSDataSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,3 +31,9 @@ class ProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = ('policy','name','description','government_entity','year_implemented','link1','link1_name','link2','link2_name','link3','link3_name')
+
+class PermitDataSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = PermitData
+        geo_field = 'point'
+        fields = ('in_date','issue_date','status','year','new_class','new_type','neighborhood','is_adu','pdx_bnd','property_address','work_description','new_units','valuation')
