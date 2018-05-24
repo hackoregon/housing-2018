@@ -1,4 +1,5 @@
 from django.contrib.gis.utils import LayerMapping
+from django.contrib.gis.geos.libgeos import load_geos
 from api.models import PermitData
 
 file_location = 'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/Residential_Building_Permits.geojson.json'
@@ -34,6 +35,8 @@ mapping = {
 
 def run(verbose=True):
     PermitData.objects.all().delete()
+    # for some reason lm.save will not work in Docker in DigitalOcean unless we run load_geos first.
+    load_geos()
     lm = LayerMapping(PermitData, file_location, mapping, transform=False, encoding='iso-8859-1')
     lm.save(strict=True, verbose=verbose)
     
