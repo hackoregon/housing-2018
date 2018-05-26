@@ -338,6 +338,8 @@ class ImportW7(DjangoImport):
                 body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': 'percent change' }
                 if ser_ix[1] == 'Real':
                     body['valuetype'] = 'percent change, 2016 dollars'
+                elif ser_ix[0] == 'Median Home Value':
+                    body['valuetype'] = '2016 dollars'
                 yield body
 
 
