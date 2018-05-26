@@ -1,7 +1,18 @@
 from django.db import models
+from django.db.models.functions import Rank
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.gis.db import models as geo_models
 from autoslug import AutoSlugField
+
+class JCHSDataManager(models.Manager):
+    def with_rank(self):
+        qs = super().get_queryset()
+        #totals = qs.values('datatype','source','date').order_by().annotate(total=models.Count(['datatype','source','date']))
+        ranked = qs.annotate(
+            rank=models.Window(expression=Rank(), partition_by=[models.F('datatype'),models.F('source'),models.F('date')], order_by=models.F('value').asc()),
+            total=models.Window(expression=models.Count(['datatype','source','date']), partition_by=[models.F('datatype'),models.F('source'),models.F('date')])
+        )
+        return ranked
 
 class JCHSData(models.Model):
     datapoint = models.CharField(max_length=255, help_text='Location of data')
@@ -15,6 +26,8 @@ class JCHSData(models.Model):
     datapoint_clean = AutoSlugField(populate_from='datapoint', max_length=100)
     datatype_clean = AutoSlugField(populate_from='datatype', max_length=100)
     valuetype_clean = AutoSlugField(populate_from='valuetype', max_length=100)
+
+    objects = JCHSDataManager()
 
 class HudPitData(models.Model):
     datapoint = models.CharField(max_length=255, help_text='Location of data')

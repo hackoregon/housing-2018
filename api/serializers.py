@@ -3,9 +3,12 @@ from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program, PermitData
 
 class JCHSDataSerializer(serializers.ModelSerializer):
+    rank = serializers.IntegerField()
+    total = serializers.IntegerField()
+
     class Meta:
         model = JCHSData
-        fields = ('id','date','datapoint','datatype','source','valuetype','value')
+        fields = ('id','date','datapoint','datatype','source','valuetype','value','rank','total')
 
 class HudPitDataSerializer(serializers.ModelSerializer):
     class Meta:

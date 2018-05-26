@@ -19,7 +19,7 @@ class JCHSDataFilter(filters.FilterSet):
         fields = ['datatype', 'datapoint', 'valuetype', 'source', 'date']
 
 class JCHSDataViewSet(viewsets.ModelViewSet):
-    queryset = JCHSData.objects.all()
+    queryset = JCHSData.objects.with_rank()
     serializer_class = JCHSDataSerializer
     filter_class = JCHSDataFilter
     ordering_fields = '__all__'
