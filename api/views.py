@@ -25,23 +25,23 @@ class FilterRankedQueryMixin(object):
         ranked = self._meta.model.objects.with_rank()
         filter_sql, filter_params = filtered.query.sql_with_params()
         parts = filter_sql.split('WHERE')
-        if len(parts) == 1:
-            return ranked 
-            
-        filter_part = parts[-1]
-        ranked_sql, ranked_params = ranked.query.sql_with_params()
+        if len(parts) > 1:
+            filter_part = parts[-1]
+            ranked_sql, ranked_params = ranked.query.sql_with_params()
 
-        cnt = filter_sql.count('%s')
-        params = ranked_params
-        if cnt > 0:
-            params = params + filter_params[cnt*-1:]
-        tbl_name = self._meta.model.objects.model._meta.db_table
-        if not is_valid_table(tbl_name):
-            raise Exception("Invalid table name: {}".format(tbl_name))
-        # wrap the ranked list of all items in the filter
-        qs = self._meta.model.objects.raw('''
-        SELECT * FROM ({}) AS "{}" WHERE {}
-        '''.format(ranked_sql, tbl_name, filter_part), params)
+            cnt = filter_sql.count('%s')
+            params = ranked_params
+            if cnt > 0:
+                params = params + filter_params[cnt*-1:]
+            tbl_name = self._meta.model.objects.model._meta.db_table
+            if not is_valid_table(tbl_name):
+                raise Exception("Invalid table name: {}".format(tbl_name))
+            # wrap the ranked list of all items in the filter
+            qs = self._meta.model.objects.raw('''
+            SELECT * FROM ({}) AS "{}" WHERE {}
+            '''.format(ranked_sql, tbl_name, filter_part), params)
+        else:
+            qs = ranked
 
         l = list(qs)
         try:
@@ -80,6 +80,7 @@ class JCHSDataFilter(FilterRankedQueryMixin, filters.FilterSet):
             ('Change in Share of Units by Real Rent Level, 2005–2015, Real Gross Rents $2,000 or More', 'W-16'): 'desc',
     }
     order_keys = ('datatype', 'source')
+
     class Meta:
         model = JCHSData
         fields = ['datatype', 'datapoint', 'valuetype', 'source', 'date']
