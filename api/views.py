@@ -35,7 +35,6 @@ class FilterRankedQueryMixin(object):
         params = ranked_params
         if cnt > 0:
             params = params + filter_params[cnt*-1:]
-
         tbl_name = self._meta.model.objects.model._meta.db_table
         if not is_valid_table(tbl_name):
             raise Exception("Invalid table name: {}".format(tbl_name))
@@ -61,7 +60,7 @@ class FilterRankedQueryMixin(object):
                 try:
                     order = self.order_mapping[order_key]
                 except:
-                    print('No mapping found for {}', order_key)
+                    #print('No mapping found for {}', order_key)
                     order = 'asc'
                     
                 obj.rank = obj.desc_rank if order == 'desc' else obj.asc_rank
@@ -86,7 +85,7 @@ class JCHSDataFilter(FilterRankedQueryMixin, filters.FilterSet):
         fields = ['datatype', 'datapoint', 'valuetype', 'source', 'date']
 
 class JCHSDataViewSet(viewsets.ModelViewSet):
-    queryset = JCHSData.objects.with_rank()
+    queryset = JCHSData.objects.all()
     serializer_class = JCHSDataSerializer
     filter_class = JCHSDataFilter
     ordering_fields = '__all__'
