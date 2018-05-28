@@ -1,7 +1,17 @@
 from django.db import models
+from django.db.models.functions import Rank
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.gis.db import models as geo_models
 from autoslug import AutoSlugField
+
+class JCHSDataManager(models.Manager):
+    def with_rank(self):
+        ranked = JCHSData.objects.annotate(
+            asc_rank=models.Window(expression=Rank(), partition_by=[models.F('datatype'),models.F('source'),models.F('date')], order_by=models.F('value').asc()),
+            desc_rank=models.Window(expression=Rank(), partition_by=[models.F('datatype'),models.F('source'),models.F('date')], order_by=models.F('value').desc()),
+            total=models.Window(expression=models.Count(['datatype','source','date']), partition_by=[models.F('datatype'),models.F('source'),models.F('date')])
+        )
+        return ranked
 
 class JCHSData(models.Model):
     datapoint = models.CharField(max_length=255, help_text='Location of data')
@@ -16,6 +26,16 @@ class JCHSData(models.Model):
     datatype_clean = AutoSlugField(populate_from='datatype', max_length=100)
     valuetype_clean = AutoSlugField(populate_from='valuetype', max_length=100)
 
+    objects = JCHSDataManager()
+
+class HudPitDataManager(models.Manager):
+    def with_rank(self):
+        ranked = HudPitData.objects.annotate(
+            rank=models.Window(expression=Rank(), partition_by=[models.F('datatype'),models.F('geography'),models.F('year')], order_by=models.F('value').asc()),
+            total=models.Window(expression=models.Count(['datatype','geography','year']), partition_by=[models.F('datatype'),models.F('geography'),models.F('year')])
+        )
+        return ranked
+
 class HudPitData(models.Model):
     datapoint = models.CharField(max_length=255, help_text='Location of data')
     geography = models.CharField(max_length=255, help_text='Location type')
@@ -26,6 +46,8 @@ class HudPitData(models.Model):
     # URL-friendly values to access via GET requests
     datapoint_clean = AutoSlugField(populate_from='datapoint', max_length=100)
     datatype_clean = AutoSlugField(populate_from='datatype', max_length=100)
+
+    objects = HudPitDataManager()
 
 class HudHicData(models.Model):
     datapoint = models.CharField(max_length=255, help_text='Location of data')
@@ -40,6 +62,15 @@ class HudHicData(models.Model):
     # URL-friendly values to access via GET requests
     datapoint_clean = AutoSlugField(populate_from='datapoint', max_length=100)
     datatype_clean = AutoSlugField(populate_from='datatype', max_length=100)
+
+class UrbanInstituteRentalCrisisManager(models.Manager):
+    def with_rank(self):
+        ranked = UrbanInstituteRentalCrisisData.objects.annotate(
+            rank=models.Window(expression=Rank(), partition_by=[models.F('year')], order_by=(models.F('aaa_units')/models.F('eli_renters')).asc()),
+            total=models.Window(expression=models.Count(['year']), partition_by=[models.F('year')])
+        )
+        
+        return ranked
     
 class UrbanInstituteRentalCrisisData(models.Model):
     year = models.PositiveSmallIntegerField(help_text='Year of data')
@@ -56,6 +87,7 @@ class UrbanInstituteRentalCrisisData(models.Model):
     no_hud_units = models.DecimalField(max_digits=11, decimal_places=2, help_text='Number of affordable, adequate, and available units without HUD rental assistance')
     no_usda_units = models.DecimalField(max_digits=11, decimal_places=2, help_text='Number of affordable, adequate, and available units without USDA rental assistance')
 
+    objects = UrbanInstituteRentalCrisisManager()
 
     def aaa_units_per_100(self):
         return self.aaa_units / self.eli_renters * 100
