@@ -11,9 +11,12 @@ class JCHSDataSerializer(serializers.ModelSerializer):
         fields = ('id','date','datapoint','datatype','source','valuetype','value','rank','total')
 
 class HudPitDataSerializer(serializers.ModelSerializer):
+    rank = serializers.IntegerField()
+    total = serializers.IntegerField()
+
     class Meta:
         model = HudPitData
-        fields = ('id','year','datapoint','datatype','geography','value')
+        fields = ('id','year','datapoint','datatype','geography','value','rank','total')
 
 class HudHicDataSerializer(serializers.ModelSerializer):
     class Meta:
