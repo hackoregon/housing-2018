@@ -96,6 +96,36 @@ class UrbanInstituteRentalCrisisDataFilter(filters.FilterSet):
         model = UrbanInstituteRentalCrisisData
         fields = '__all__'
 
+    # not sure if there's a better way to do this
+    @property
+    def qs(self):
+        """
+        Override to nest the ranking query inside of the filters, limiting, and ordering.
+        """
+        filtered = super(UrbanInstituteRentalCrisisDataFilter, self).qs
+        ranked = UrbanInstituteRentalCrisisData.objects.with_rank()
+        filter_sql, filter_params = filtered.query.sql_with_params()
+        parts = filter_sql.split('WHERE')
+        if len(parts) == 1:
+            return ranked 
+            
+        filter_part = parts[-1]
+        ranked_sql, ranked_params = ranked.query.sql_with_params()
+
+        cnt = filter_sql.count('%s')
+        params = ranked_params
+        if cnt > 0:
+            params = params + filter_params[(cnt-1)*-1:]
+        
+        # wrap the ranked list of all items in the filter
+        qs = UrbanInstituteRentalCrisisData.objects.raw('''
+        SELECT * FROM ({}) "api_urbaninstituterentalcrisisdata" WHERE {}
+        '''.format(ranked_sql, filter_part), params)
+
+        # need to convert to list in order to allow for pagination
+        self._qs = list(qs)
+        return self._qs
+
 class UrbanInstituteRentalCrisisDataViewSet(viewsets.ModelViewSet):            
     queryset = UrbanInstituteRentalCrisisData.objects.all()
     serializer_class = UrbanInstituteRentalCrisisDataSerializer
