@@ -101,6 +101,9 @@ class Pit(DjangoImport):
                     continue
                 if ' ' in datapoint:
                     continue
+                coc_name = None
+                if self.geography == 'coc':
+                    coc_name = row['CoC Name']
 
                 for c in df.columns[1:]:
                     datatype = re.sub(r'\,\s+' + str(year) + r'$', '', c)
@@ -115,6 +118,8 @@ class Pit(DjangoImport):
                         'datatype': datatype,
                         'value': value,
                     }
+                    if coc_name:
+                        body['datapoint'] = body['datapoint'] + ': ' + coc_name
 
                     yield body
 
