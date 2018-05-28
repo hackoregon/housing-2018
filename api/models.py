@@ -28,6 +28,14 @@ class JCHSData(models.Model):
 
     objects = JCHSDataManager()
 
+class HudPitDataManager(models.Manager):
+    def with_rank(self):
+        ranked = HudPitData.objects.annotate(
+            rank=models.Window(expression=Rank(), partition_by=[models.F('datatype'),models.F('geography'),models.F('year')], order_by=models.F('value').asc()),
+            total=models.Window(expression=models.Count(['datatype','geography','year']), partition_by=[models.F('datatype'),models.F('geography'),models.F('year')])
+        )
+        return ranked
+
 class HudPitData(models.Model):
     datapoint = models.CharField(max_length=255, help_text='Location of data')
     geography = models.CharField(max_length=255, help_text='Location type')
@@ -38,6 +46,8 @@ class HudPitData(models.Model):
     # URL-friendly values to access via GET requests
     datapoint_clean = AutoSlugField(populate_from='datapoint', max_length=100)
     datatype_clean = AutoSlugField(populate_from='datatype', max_length=100)
+
+    objects = HudPitDataManager()
 
 class HudHicData(models.Model):
     datapoint = models.CharField(max_length=255, help_text='Location of data')
