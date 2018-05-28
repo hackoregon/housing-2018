@@ -34,19 +34,25 @@ class FilterRankedQueryMixin(object):
         cnt = filter_sql.count('%s')
         params = ranked_params
         if cnt > 0:
-            params = params + filter_params[(cnt-1)*-1:]
+            params = params + filter_params[cnt*-1:]
 
         tbl_name = self._meta.model.objects.model._meta.db_table
         if not is_valid_table(tbl_name):
             raise Exception("Invalid table name: {}".format(tbl_name))
-        
         # wrap the ranked list of all items in the filter
         qs = self._meta.model.objects.raw('''
         SELECT * FROM ({}) AS "{}" WHERE {}
         '''.format(ranked_sql, tbl_name, filter_part), params)
 
         l = list(qs)
-        if self.order_mapping and self.order_keys:
+        try:
+            order_mapping = self.order_mapping
+            order_keys = self.order_keys
+        except AttributeError:
+            order_mapping = None
+            order_keys = None
+
+        if order_mapping and order_keys:
             for obj in l:
                 if isinstance(self.order_keys, str):
                     order_key = getattr(obj, self.order_keys)
@@ -110,7 +116,7 @@ class JCHSDataViewSet(viewsets.ModelViewSet):
 
         return Response(result)
 
-class HudPitDataFilter(filters.FilterSet):
+class HudPitDataFilter(FilterRankedQueryMixin, filters.FilterSet):
     datatype = filters.CharFilter(name='datatype_clean', lookup_expr='icontains')
     datapoint = filters.CharFilter(name='datapoint_clean', lookup_expr='icontains')
     geography = filters.CharFilter(lookup_expr='iexact')
