@@ -53,6 +53,15 @@ class HudHicData(models.Model):
     # URL-friendly values to access via GET requests
     datapoint_clean = AutoSlugField(populate_from='datapoint', max_length=100)
     datatype_clean = AutoSlugField(populate_from='datatype', max_length=100)
+
+class UrbanInstituteRentalCrisisManager(models.Manager):
+    def with_rank(self):
+        ranked = UrbanInstituteRentalCrisisData.objects.annotate(
+            rank=models.Window(expression=Rank(), partition_by=[models.F('year')], order_by=(models.F('aaa_units')/models.F('eli_renters')).asc()),
+            total=models.Window(expression=models.Count(['year']), partition_by=[models.F('year')])
+        )
+        
+        return ranked
     
 class UrbanInstituteRentalCrisisData(models.Model):
     year = models.PositiveSmallIntegerField(help_text='Year of data')
@@ -69,6 +78,7 @@ class UrbanInstituteRentalCrisisData(models.Model):
     no_hud_units = models.DecimalField(max_digits=11, decimal_places=2, help_text='Number of affordable, adequate, and available units without HUD rental assistance')
     no_usda_units = models.DecimalField(max_digits=11, decimal_places=2, help_text='Number of affordable, adequate, and available units without USDA rental assistance')
 
+    objects = UrbanInstituteRentalCrisisManager()
 
     def aaa_units_per_100(self):
         return self.aaa_units / self.eli_renters * 100
