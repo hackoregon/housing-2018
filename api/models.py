@@ -6,7 +6,7 @@ from autoslug import AutoSlugField
 
 class JCHSDataManager(models.Manager):
     def with_rank(self):
-        ranked = JCHSData.objects.annotate(
+        ranked = JCHSData.objects.exclude(datapoint='United States').annotate(
             asc_rank=models.Window(expression=Rank(), partition_by=[models.F('datatype'),models.F('source'),models.F('date')], order_by=models.F('value').asc()),
             desc_rank=models.Window(expression=Rank(), partition_by=[models.F('datatype'),models.F('source'),models.F('date')], order_by=models.F('value').desc()),
             total=models.Window(expression=models.Count(['datatype','source','date']), partition_by=[models.F('datatype'),models.F('source'),models.F('date')])
