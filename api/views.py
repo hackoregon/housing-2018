@@ -2,6 +2,7 @@ import re
 from django.core.exceptions import FieldDoesNotExist
 from django.core.serializers import serialize
 from django.contrib.postgres.fields import ArrayField
+from django.db.models.expressions import RawSQL
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
@@ -21,8 +22,22 @@ class FilterRankedQueryMixin(object):
         """
         Override to nest the ranking query inside of the filters, limiting, and ordering in order to allow for a ranking to be given out of all items, not just those included in the filtering.
         """
+
+        try:
+            order_mapping = self.order_mapping
+            order_keys = self.order_keys
+        except AttributeError:
+            order_mapping = None
+            order_keys = None
+
         filtered = super(FilterRankedQueryMixin, self).qs
         ranked = self._meta.model.objects.with_rank()
+        us = self._meta.model.objects.filter(datapoint='United States')
+        if order_mapping:
+            us = us.annotate(asc_rank=RawSQL('NULL', []), desc_rank=RawSQL('NULL', []), total=RawSQL('NULL', []))
+        else:
+            us = us.annotate(rank=RawSQL('NULL', []), total=RawSQL('NULL', []))
+        us_sql, us_params = us.query.sql_with_params()
         filter_sql, filter_params = filtered.query.sql_with_params()
         parts = filter_sql.split('WHERE')
         if len(parts) > 1:
@@ -30,7 +45,7 @@ class FilterRankedQueryMixin(object):
             ranked_sql, ranked_params = ranked.query.sql_with_params()
 
             cnt = filter_sql.count('%s')
-            params = ranked_params
+            params = ranked_params + us_params
             if cnt > 0:
                 params = params + filter_params[cnt*-1:]
             tbl_name = self._meta.model.objects.model._meta.db_table
@@ -38,18 +53,18 @@ class FilterRankedQueryMixin(object):
                 raise Exception("Invalid table name: {}".format(tbl_name))
             # wrap the ranked list of all items in the filter
             qs = self._meta.model.objects.raw('''
-            SELECT * FROM ({}) AS "{}" WHERE {}
-            '''.format(ranked_sql, tbl_name, filter_part), params)
+            SELECT * 
+            FROM (
+                {} 
+                UNION ALL 
+                {}
+            ) AS "{}" 
+            WHERE {}
+            '''.format(ranked_sql, us_sql, tbl_name, filter_part), params)
         else:
             qs = ranked
 
         l = list(qs)
-        try:
-            order_mapping = self.order_mapping
-            order_keys = self.order_keys
-        except AttributeError:
-            order_mapping = None
-            order_keys = None
 
         if order_mapping and order_keys:
             for obj in l:
