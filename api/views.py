@@ -132,8 +132,8 @@ class JCHSDataViewSet(viewsets.ModelViewSet):
         return Response(result)
 
 class HudPitDataFilter(FilterRankedQueryMixin, filters.FilterSet):
-    datatype = filters.CharFilter(name='datatype_clean', lookup_expr='icontains')
-    datapoint = filters.CharFilter(name='datapoint_clean', lookup_expr='icontains')
+    datatype = filters.CharFilter(name='datatype_clean')
+    datapoint = filters.CharFilter(name='datapoint_clean')
     geography = filters.CharFilter(lookup_expr='iexact')
 
     class Meta:
