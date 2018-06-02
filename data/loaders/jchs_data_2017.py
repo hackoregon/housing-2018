@@ -590,12 +590,12 @@ class ImportW16(DjangoImport):
         for ix, row in df.iterrows():
             if not self.is_valid_value(row['share']):
                 continue
-            obj = JCHSData(date=row['date'], source=row['source'], datatype='Share of Units by Real Rent Level,' + row['datatype'].split(',')[-1], datapoint=row['datapoint'], value=row['share'], valuetype='percent')
+            obj = JCHSData(date=row['date'], source=row['source'], datatype='Share of Units by Real Rent Level,' + row['datatype'].split('Rent Level,')[-1], datapoint=row['datapoint'], value=row['share'], valuetype='percent')
             objects_to_save.append(obj)
 
             if not self.is_valid_value(row['change']):
                 continue
-            obj = JCHSData(date=row['date'], source=row['source'], datatype='Change in Share of Units by Real Rent Level, 2005-2015,' + row['datatype'].split(',')[-1], datapoint=row['datapoint'], value=row['change'], valuetype='percentage points')
+            obj = JCHSData(date=row['date'], source=row['source'], datatype='Change in Share of Units by Real Rent Level, 2005-2015,' + row['datatype'].split('Rent Level,')[-1], datapoint=row['datapoint'], value=row['change'], valuetype='percentage points')
             objects_to_save.append(obj)
 
         return len(JCHSData.objects.bulk_create(objects_to_save))
@@ -684,4 +684,3 @@ def load_data():
 
     print('Inserted {} rows'.format(ct))
 
-#load_data('http://www.jchs.harvard.edu/sites/jchs.harvard.edu/files/all_son_2017_tables_current_6_12_17.xlsx')
