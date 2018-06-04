@@ -48,13 +48,15 @@ def run(verbose=True):
         if not os.path.isdir(TMP_LOCATION):
             os.makedirs(TMP_LOCATION)
             
-        for ext in ['shp','shx']:
+        for ext in ['shp','shx','dbf','prj','qpj']:
             file_name = 'taxlots_2017v2011.{}'.format(ext)
             file_loc = TMP_LOCATION + file_name
             if not os.path.isfile(file_loc):
                 url = 'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/taxlots/{}'.format(file_name)
                 with open(file_loc, 'w') as f:
                     f.write(requests.get(url).text)
+
+        print(os.listdir(TMP_LOCATION))
 
         TaxlotData.objects.all().delete()
         lm = LayerMapping(TaxlotData, TMP_LOCATION + 'taxlots_2017v2011.shp', mapping, transform=False, encoding='iso-8859-1')
