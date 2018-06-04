@@ -8,11 +8,14 @@ router.register(r'harvardjchs', views.JCHSDataViewSet)
 router.register(r'homelessness/pit', views.HudPitDataViewSet)
 router.register(r'homelessness/hic', views.HudHicDataViewSet)
 router.register(r'rentalcrisis', views.UrbanInstituteRentalCrisisDataViewSet)
+router.register(r'policies', views.PolicyViewSet)
+router.register(r'programs', views.ProgramViewSet)
+router.register(r'permits', views.PermitDataViewSet)
 
 schema_view = get_swagger_view(title='Housing API')
 
 urlpatterns = [
-    path(r'api/', include(router.urls)),
-    path(r'schema/', schema_view)
+    path('api/', include(router.urls)),
+    path('', schema_view)
 ]
 

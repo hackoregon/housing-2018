@@ -101,6 +101,9 @@ class Pit(DjangoImport):
                     continue
                 if ' ' in datapoint:
                     continue
+                coc_name = None
+                if self.geography == 'coc':
+                    coc_name = row['CoC Name']
 
                 for c in df.columns[1:]:
                     datatype = re.sub(r'\,\s+' + str(year) + r'$', '', c)
@@ -115,6 +118,8 @@ class Pit(DjangoImport):
                         'datatype': datatype,
                         'value': value,
                     }
+                    if coc_name:
+                        body['datapoint'] = body['datapoint'] + ': ' + coc_name
 
                     yield body
 
@@ -158,7 +163,7 @@ class Hic(DjangoImport):
                 continue
 
             for datapoint, row in df.iterrows():
-                for c1, c2 in df.columns[1:]:
+                for c1, c2 in df.columns:
                     col = c1
                     # fix for 2013 where RRH was included in total too (this isn't true for any other year)
                     if year == 2013 and c1 == 'Total Beds (ES,TH,SH)':
@@ -216,6 +221,7 @@ class Hic(DjangoImport):
                         'shelter_status': shelter_status.replace('&', ',').split(','),
                         'value': value,
                     }
+
                     yield body
 
 def load_data():

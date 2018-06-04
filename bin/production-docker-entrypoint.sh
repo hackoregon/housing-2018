@@ -15,8 +15,10 @@ done
 
 echo Debug: $DEBUG
 
+source /code/bin/get-ssm-parameters.sh
+
 ./manage.py collectstatic --noinput
 
-python manage.py migrate
+#python manage.py migrate
 
 gunicorn $PROJECT_NAME.wsgi -c gunicorn_config.py

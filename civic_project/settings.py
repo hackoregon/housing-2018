@@ -11,10 +11,12 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+from ctypes.util import find_library
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+GEOS_LIBRARY_PATH = find_library('geos_c')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -36,11 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     'api',
     'corsheaders',
     'django_filters',
     'rest_framework',
     'rest_framework_swagger',
+    'rest_framework_gis',
     ]
 
 MIDDLEWARE = [
@@ -81,7 +85,7 @@ WSGI_APPLICATION = 'civic_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
         'NAME': os.environ.get('POSTGRES_NAME'),
         'USER': os.environ.get('POSTGRES_USER'),
@@ -94,7 +98,7 @@ if DEBUG == False:
 
     DATABASES = {
         'default': {
-            'ENGINE': 'django_db_geventpool.backends.postgresql_psycopg2',
+            'ENGINE': 'django_db_geventpool.backends.postgis',
             'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
             'NAME': os.environ.get('POSTGRES_NAME'),
             'USER': os.environ.get('POSTGRES_USER'),
