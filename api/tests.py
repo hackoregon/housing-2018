@@ -14,20 +14,20 @@ class APIEndpoints(TestCase):
         self.client = APIClient()
 
     def test_schema_endpoint(self):
-        response = self.client.get('/schema/')
+        response = self.client.get('/housing-affordability/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_api_endpoint_status(self):
-        response = self.client.get('/api/')
+        response = self.client.get('/housing-affordability/api/')
         datasets = ['harvardjchs','homelessness/pit','homelessness/hic','rentalcrisis','policies','programs','permits']
-        endpoints = { v: f'http://testserver/api/{v}/' for v in datasets } 
+        endpoints = { v: f'http://testserver/housing-affordability/api/{v}/' for v in datasets } 
         with self.subTest('status_code'):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
         with self.subTest('content'):
             self.assertEqual(response.json(), endpoints)
 
     def test_invalid_endpoint(self):
-        response = self.client.get('/api/asdf/')
+        response = self.client.get('/housing-affordability/api/asdf/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 class TestJCHSDataEndpoints(TestCase):
@@ -40,7 +40,7 @@ class TestJCHSDataEndpoints(TestCase):
 
     @pytest.mark.django_db
     def test_list_endpoint(self):
-        response = self.client.get('/api/harvardjchs/')
+        response = self.client.get('/housing-affordability/api/harvardjchs/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     #def test_detail_endpoint(self):
