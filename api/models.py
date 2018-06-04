@@ -1,7 +1,6 @@
-from django.db import models
 from django.db.models.functions import Rank
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.gis.db import models as geo_models
+from django.contrib.gis.db import models
 from autoslug import AutoSlugField
 
 class JCHSDataManager(models.Manager):
@@ -167,4 +166,43 @@ class PermitData(models.Model):
     x_coord = models.DecimalField(max_digits=19, decimal_places=6)
     y_coord = models.DecimalField(max_digits=19, decimal_places=6)
 
-    point = geo_models.PointField()
+    point = models.PointField()
+
+class TaxlotData(models.Model):
+    area = models.FloatField()
+    tlid = models.CharField(max_length=16)
+    rno = models.CharField(max_length=10)
+    owner_address = models.CharField(max_length=35)
+    owner_city = models.CharField(max_length=30)
+    owner_state = models.CharField(max_length=2)
+    owner_zip = models.CharField(max_length=10)
+    site_str_no = models.IntegerField()
+    site_address = models.CharField(max_length=35)
+    site_city = models.CharField(max_length=30)
+    site_zip = models.CharField(max_length=10)
+    land_value = models.IntegerField()
+    building_value = models.IntegerField()
+    total_value = models.IntegerField()
+    building_sqft = models.IntegerField()
+    a_t_acres = models.FloatField()
+    year_built = models.PositiveSmallIntegerField()
+    prop_code = models.CharField(max_length=3)
+    land_use = models.CharField(max_length=3)
+    tax_code = models.CharField(max_length=7)
+    sale_date = models.CharField(max_length=6)
+    sale_price = models.IntegerField()
+    county = models.CharField(max_length=1)
+    x_coord = models.IntegerField()
+    y_coord = models.IntegerField()
+    juris_city = models.CharField(max_length=30)
+    gis_acres = models.FloatField()
+    state_class = models.CharField(max_length=4)
+    or_tax_lot = models.CharField(max_length=29)
+    orig_ogc_f = models.IntegerField()
+    building_value_2011 = models.IntegerField()
+    land_value_2011 = models.IntegerField()
+    total_value_2011 = models.IntegerField()
+    percent_change_2011_2017 = models.FloatField()
+
+    mpoly = models.MultiPolygonField()
+
