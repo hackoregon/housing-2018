@@ -15,6 +15,8 @@ done
 
 echo Debug: $DEBUG
 
+source /code/bin/get-ssm-parameters.sh
+
 ./manage.py collectstatic --noinput
 
 python manage.py migrate
