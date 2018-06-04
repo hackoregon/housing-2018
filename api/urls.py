@@ -15,7 +15,7 @@ router.register(r'permits', views.PermitDataViewSet)
 schema_view = get_swagger_view(title='Housing API')
 
 urlpatterns = [
-    path(r'^', include(router.urls)),
-    path(r'^schema/', schema_view)
+    path('api/', include(router.urls)),
+    path('', schema_view)
 ]
 
