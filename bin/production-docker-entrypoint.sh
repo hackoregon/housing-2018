@@ -7,8 +7,6 @@ set -eou pipefail
 
 source /code/bin/get-ssm-parameters.sh
 
-echo Debug: $DEBUG
-
 ./manage.py collectstatic --noinput
 
 #python manage.py migrate
