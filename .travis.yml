@@ -16,4 +16,4 @@ script:
   - ./bin/test.sh -p
 
 after_success:
-  - ./bin/deploy.sh
+  - bin/deploy.sh

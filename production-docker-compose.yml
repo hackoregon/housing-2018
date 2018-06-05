@@ -9,7 +9,7 @@ services:
     volumes:
       - .:/code
     ports:
-      - 8000:8000
+      - "8000:8000"
     environment:
       - PROJECT_NAME
       - DEBUG=False
