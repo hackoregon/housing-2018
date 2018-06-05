@@ -1,7 +1,16 @@
-from django.db import models
+from django.db.models.functions import Rank
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.gis.db import models as geo_models
+from django.contrib.gis.db import models
 from autoslug import AutoSlugField
+
+class JCHSDataManager(models.Manager):
+    def with_rank(self):
+        ranked = JCHSData.objects.exclude(datapoint='United States').annotate(
+            asc_rank=models.Window(expression=Rank(), partition_by=[models.F('datatype'),models.F('source'),models.F('date')], order_by=models.F('value').asc()),
+            desc_rank=models.Window(expression=Rank(), partition_by=[models.F('datatype'),models.F('source'),models.F('date')], order_by=models.F('value').desc()),
+            total=models.Window(expression=models.Count(['datatype','source','date']), partition_by=[models.F('datatype'),models.F('source'),models.F('date')])
+        )
+        return ranked
 
 class JCHSData(models.Model):
     datapoint = models.CharField(max_length=255, help_text='Location of data')
@@ -16,6 +25,16 @@ class JCHSData(models.Model):
     datatype_clean = AutoSlugField(populate_from='datatype', max_length=100)
     valuetype_clean = AutoSlugField(populate_from='valuetype', max_length=100)
 
+    objects = JCHSDataManager()
+
+class HudPitDataManager(models.Manager):
+    def with_rank(self):
+        ranked = HudPitData.objects.annotate(
+            rank=models.Window(expression=Rank(), partition_by=[models.F('datatype'),models.F('geography'),models.F('year')], order_by=models.F('value').asc()),
+            total=models.Window(expression=models.Count(['datatype','geography','year']), partition_by=[models.F('datatype'),models.F('geography'),models.F('year')])
+        )
+        return ranked
+
 class HudPitData(models.Model):
     datapoint = models.CharField(max_length=255, help_text='Location of data')
     geography = models.CharField(max_length=255, help_text='Location type')
@@ -26,6 +45,8 @@ class HudPitData(models.Model):
     # URL-friendly values to access via GET requests
     datapoint_clean = AutoSlugField(populate_from='datapoint', max_length=100)
     datatype_clean = AutoSlugField(populate_from='datatype', max_length=100)
+
+    objects = HudPitDataManager()
 
 class HudHicData(models.Model):
     datapoint = models.CharField(max_length=255, help_text='Location of data')
@@ -40,6 +61,15 @@ class HudHicData(models.Model):
     # URL-friendly values to access via GET requests
     datapoint_clean = AutoSlugField(populate_from='datapoint', max_length=100)
     datatype_clean = AutoSlugField(populate_from='datatype', max_length=100)
+
+class UrbanInstituteRentalCrisisManager(models.Manager):
+    def with_rank(self):
+        ranked = UrbanInstituteRentalCrisisData.objects.annotate(
+            rank=models.Window(expression=Rank(), partition_by=[models.F('year')], order_by=(models.F('aaa_units')/models.F('eli_renters')).asc()),
+            total=models.Window(expression=models.Count(['year']), partition_by=[models.F('year')])
+        )
+        
+        return ranked
     
 class UrbanInstituteRentalCrisisData(models.Model):
     year = models.PositiveSmallIntegerField(help_text='Year of data')
@@ -56,6 +86,7 @@ class UrbanInstituteRentalCrisisData(models.Model):
     no_hud_units = models.DecimalField(max_digits=11, decimal_places=2, help_text='Number of affordable, adequate, and available units without HUD rental assistance')
     no_usda_units = models.DecimalField(max_digits=11, decimal_places=2, help_text='Number of affordable, adequate, and available units without USDA rental assistance')
 
+    objects = UrbanInstituteRentalCrisisManager()
 
     def aaa_units_per_100(self):
         return self.aaa_units / self.eli_renters * 100
@@ -135,4 +166,43 @@ class PermitData(models.Model):
     x_coord = models.DecimalField(max_digits=19, decimal_places=6)
     y_coord = models.DecimalField(max_digits=19, decimal_places=6)
 
-    point = geo_models.PointField()
+    point = models.PointField()
+
+class TaxlotData(models.Model):
+    area = models.FloatField()
+    tlid = models.CharField(max_length=16)
+    rno = models.CharField(max_length=10)
+    owner_address = models.CharField(max_length=35)
+    owner_city = models.CharField(max_length=30)
+    owner_state = models.CharField(max_length=2)
+    owner_zip = models.CharField(max_length=10)
+    site_str_no = models.IntegerField()
+    site_address = models.CharField(max_length=35)
+    site_city = models.CharField(max_length=30)
+    site_zip = models.CharField(max_length=10)
+    land_value = models.IntegerField()
+    building_value = models.IntegerField()
+    total_value = models.IntegerField()
+    building_sqft = models.IntegerField()
+    a_t_acres = models.FloatField()
+    year_built = models.PositiveSmallIntegerField()
+    prop_code = models.CharField(max_length=3)
+    land_use = models.CharField(max_length=3)
+    tax_code = models.CharField(max_length=7)
+    sale_date = models.CharField(max_length=6)
+    sale_price = models.IntegerField()
+    county = models.CharField(max_length=1)
+    x_coord = models.IntegerField()
+    y_coord = models.IntegerField()
+    juris_city = models.CharField(max_length=30)
+    gis_acres = models.FloatField()
+    state_class = models.CharField(max_length=4)
+    or_tax_lot = models.CharField(max_length=29)
+    orig_ogc_f = models.IntegerField()
+    building_value_2011 = models.IntegerField()
+    land_value_2011 = models.IntegerField()
+    total_value_2011 = models.IntegerField()
+    percent_change_2011_2017 = models.FloatField()
+
+    mpoly = models.MultiPolygonField()
+

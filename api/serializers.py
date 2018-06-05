@@ -3,14 +3,20 @@ from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program, PermitData
 
 class JCHSDataSerializer(serializers.ModelSerializer):
+    rank = serializers.IntegerField()
+    total = serializers.IntegerField()
+
     class Meta:
         model = JCHSData
-        fields = ('id','date','datapoint','datatype','source','valuetype','value')
+        fields = ('id','date','datapoint','datatype','source','valuetype','value','rank','total')
 
 class HudPitDataSerializer(serializers.ModelSerializer):
+    rank = serializers.IntegerField()
+    total = serializers.IntegerField()
+
     class Meta:
         model = HudPitData
-        fields = ('id','year','datapoint','datatype','geography','value')
+        fields = ('id','year','datapoint','datatype','geography','value','rank','total')
 
 class HudHicDataSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,9 +24,12 @@ class HudHicDataSerializer(serializers.ModelSerializer):
         fields = ('id','year','datapoint','datatype','shelter_status','geography','value')
 
 class UrbanInstituteRentalCrisisDataSerializer(serializers.ModelSerializer):
+    rank = serializers.IntegerField()
+    total = serializers.IntegerField()
+
     class Meta:
         model = UrbanInstituteRentalCrisisData
-        fields = ('id','year','eli_limit','county_fips','county_name','state_name','is_state_data','eli_renters','aaa_units','noasst_units','hud_units','usda_units','no_hud_units','no_usda_units','aaa_units_per_100','noasst_units_per_100','hud_units_per_100','usda_units_per_100','no_hud_units_per_100','no_usda_units_per_100')
+        fields = ('id','year','eli_limit','county_fips','county_name','state_name','is_state_data','eli_renters','aaa_units','noasst_units','hud_units','usda_units','no_hud_units','no_usda_units','aaa_units_per_100','noasst_units_per_100','hud_units_per_100','usda_units_per_100','no_hud_units_per_100','no_usda_units_per_100','rank','total')
 
 class PolicySerializer(serializers.ModelSerializer):
     class Meta:

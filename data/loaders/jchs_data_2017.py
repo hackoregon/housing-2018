@@ -1,7 +1,9 @@
 import os
 import re
+import decimal
 import requests
 import pandas as pd
+import numpy as np
 import pytz
 from datetime import datetime
 from pytz import timezone
@@ -108,6 +110,12 @@ class DjangoImport(object):
 
         # drop rows where all values are empty    
         self.df = self.df.dropna(how='all')
+
+    def post_process(self):
+        """
+        Optional task to perform after saving of data. For instance, to insert some calculated rows.
+        """
+        print('No post processing to be performed.')
         
     def save(self, delete_existing=True, query=None):
         """
@@ -132,7 +140,11 @@ class DjangoImport(object):
 
         # add new items
         results = JCHSData.objects.bulk_create(self.generate_objects())
-        return len(results)
+        pp_results = self.post_process()
+        result_ct = len(results)
+        if pp_results:
+            result_ct += pp_results
+        return result_ct
         
     def is_valid_value(self, val):
         if pd.isnull(val) or str(val).strip() in ['', '.', 'na']:
@@ -338,6 +350,8 @@ class ImportW7(DjangoImport):
                 body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': 'percent change' }
                 if ser_ix[1] == 'Real':
                     body['valuetype'] = 'percent change, 2016 dollars'
+                elif ser_ix[0] == 'Median Home Value':
+                    body['valuetype'] = '2016 dollars'
                 yield body
 
 
@@ -527,7 +541,6 @@ class ImportW16(DjangoImport):
         
     def generate_json(self):
         for ix, row in self.df.iterrows():
-
             for ser_ix, val in row.iteritems():
                 if not self.is_valid_value(val):
                     continue
@@ -553,6 +566,39 @@ class ImportW16(DjangoImport):
                 body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
                 yield body
 
+    def post_process(self):
+        print('Running post_process for W-16')
+        # calculate share of each rent level
+        df = pd.DataFrame(list(JCHSData.objects.filter(datatype__contains='Estimated Number of Renter Households by Rent Level').values()))
+        df = df.set_index(['datapoint','datatype','date'], drop=False)
+        df = df.sort_index()
+        totals = df[~df.datatype.isin(['Estimated Number of Renter Households by Rent Level, Real Gross Rents Under $800','Estimated Number of Renter Households by Rent Level, Real Gross Rents $2,000 or More'])].groupby(['datapoint','date'])['value'].sum()
+        df['share'] = df.apply(lambda row: row['value'] / totals.loc[(row['datapoint'], row['date'])], axis=1)
+
+        # calculate change in share of each rent level
+        def get_change(row):
+            try:
+                prev = df.loc[(row['datapoint'], row['datatype'], '2005-01-01')].at['share']
+            except KeyError:
+                prev = decimal.Decimal(np.NaN)
+            return row['share'] - prev
+            
+        df.loc[(slice(None), slice(None), '2015-01-01'), 'change'] = df.loc[(slice(None), slice(None), '2015-01-01'), :].apply(get_change, axis=1)
+
+        objects_to_save = []
+
+        for ix, row in df.iterrows():
+            if not self.is_valid_value(row['share']):
+                continue
+            obj = JCHSData(date=row['date'], source=row['source'], datatype='Share of Units by Real Rent Level,' + row['datatype'].split('Rent Level,')[-1], datapoint=row['datapoint'], value=row['share'], valuetype='percent')
+            objects_to_save.append(obj)
+
+            if not self.is_valid_value(row['change']):
+                continue
+            obj = JCHSData(date=row['date'], source=row['source'], datatype='Change in Share of Units by Real Rent Level, 2005-2015,' + row['datatype'].split('Rent Level,')[-1], datapoint=row['datapoint'], value=row['change'], valuetype='percentage points')
+            objects_to_save.append(obj)
+
+        return len(JCHSData.objects.bulk_create(objects_to_save))
 
 # W-17
 class ImportW17(DjangoImport):
@@ -638,4 +684,3 @@ def load_data():
 
     print('Inserted {} rows'.format(ct))
 
-#load_data('http://www.jchs.harvard.edu/sites/jchs.harvard.edu/files/all_son_2017_tables_current_6_12_17.xlsx')
