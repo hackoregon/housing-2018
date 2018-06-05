@@ -99,7 +99,7 @@ except ImportError:
 #       True or False
 #
 
-spew = True
+spew = False
 
 #
 # Server mechanics
