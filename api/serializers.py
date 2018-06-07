@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
-from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program, PermitData
+from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program, PermitData, TaxlotData
 
 class JCHSDataSerializer(serializers.ModelSerializer):
     rank = serializers.IntegerField()
@@ -46,3 +46,9 @@ class PermitDataSerializer(GeoFeatureModelSerializer):
         model = PermitData
         geo_field = 'point'
         fields = ('in_date','issue_date','status','year','new_class','new_type','neighborhood','is_adu','pdx_bnd','property_address','work_description','new_units','valuation')
+
+class TaxlotDataSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = TaxlotData
+        geo_field = 'mpoly'
+        fields = ('total_value',)

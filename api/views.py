@@ -2,12 +2,13 @@ import re
 from django.core.exceptions import FieldDoesNotExist
 from django.core.serializers import serialize
 from django.contrib.postgres.fields import ArrayField
+from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
-from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program, PermitData
-from api.serializers import JCHSDataSerializer, HudPitDataSerializer, HudHicDataSerializer, UrbanInstituteRentalCrisisDataSerializer, PolicySerializer, ProgramSerializer, PermitDataSerializer
+from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program, PermitData, TaxlotData
+from api.serializers import JCHSDataSerializer, HudPitDataSerializer, HudHicDataSerializer, UrbanInstituteRentalCrisisDataSerializer, PolicySerializer, ProgramSerializer, PermitDataSerializer, TaxlotDataSerializer
 from django_filters import rest_framework as filters
 
 def is_valid_table(tbl_name):
@@ -30,14 +31,25 @@ class FilterRankedQueryMixin(object):
             order_mapping = None
             order_keys = None
 
+        try:
+            ignore_query = self.ignore_query
+        except AttributeError:
+            ignore_query = None
+
         filtered = super(FilterRankedQueryMixin, self).qs
         ranked = self._meta.model.objects.with_rank()
-        us = self._meta.model.objects.filter(datapoint='United States')
-        if order_mapping:
-            us = us.annotate(asc_rank=RawSQL('NULL', []), desc_rank=RawSQL('NULL', []), total=RawSQL('NULL', []))
+
+        if ignore_query is not None:
+            ignore = self._meta.model.objects.filter(datapoint='United States')
+            if order_mapping:
+                ignore = ignore.annotate(asc_rank=RawSQL('NULL', []), desc_rank=RawSQL('NULL', []), total=RawSQL('NULL', []))
+            else:
+                ignore = ignore.annotate(rank=RawSQL('NULL', []), total=RawSQL('NULL', []))
+            ignore_sql, ignore_params = ignore.query.sql_with_params()
         else:
-            us = us.annotate(rank=RawSQL('NULL', []), total=RawSQL('NULL', []))
-        us_sql, us_params = us.query.sql_with_params()
+            ignore_sql = None
+            ignore_params = None
+
         filter_sql, filter_params = filtered.query.sql_with_params()
         parts = filter_sql.split('WHERE')
         if len(parts) > 1:
@@ -45,22 +57,29 @@ class FilterRankedQueryMixin(object):
             ranked_sql, ranked_params = ranked.query.sql_with_params()
 
             cnt = filter_sql.count('%s')
-            params = ranked_params + us_params
+            params = ranked_params
+            if ignore_params is not None:
+                params = params + ignore_params
             if cnt > 0:
                 params = params + filter_params[cnt*-1:]
             tbl_name = self._meta.model.objects.model._meta.db_table
             if not is_valid_table(tbl_name):
                 raise Exception("Invalid table name: {}".format(tbl_name))
+
+            if ignore_sql is not None:
+                ignore_sql = '''UNION ALL
+                                {}'''.format(ignore_sql)
+            else:
+                ignore_sql = ''
             # wrap the ranked list of all items in the filter
             qs = self._meta.model.objects.raw('''
             SELECT * 
             FROM (
                 {} 
-                UNION ALL 
                 {}
             ) AS "{}" 
             WHERE {}
-            '''.format(ranked_sql, us_sql, tbl_name, filter_part), params)
+            '''.format(ranked_sql, ignore_sql, tbl_name, filter_part), params)
         else:
             qs = ranked
 
@@ -95,6 +114,7 @@ class JCHSDataFilter(FilterRankedQueryMixin, filters.FilterSet):
             ('Change in Share of Units by Real Rent Level, 2005–2015, Real Gross Rents $2,000 or More', 'W-16'): 'desc',
     }
     order_keys = ('datatype', 'source')
+    ignore_query = Q(datapoint='United States')
 
     class Meta:
         model = JCHSData
@@ -216,7 +236,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
 
 class PermitDataFilter(filters.FilterSet):
     new_class = filters.CharFilter(lookup_expr='iexact')
-    new_type = filters.CharFilter(lookup_expr='iexact')
+    new_type = CharInFilter(name='new_type', lookup_expr='in')
     status = filters.CharFilter(lookup_expr='iexact')
     is_adu = filters.CharFilter(lookup_expr='iexact')
     property_address = filters.CharFilter(lookup_expr='icontains')
@@ -232,3 +252,12 @@ class PermitDataViewSet(viewsets.ModelViewSet):
     serializer_class = PermitDataSerializer
     filter_class = PermitDataFilter
 
+class TaxlotDataFilter(filters.FilterSet):
+    class Meta:
+        model = TaxlotData
+        fields = ('total_value',)
+
+class TaxlotDataViewSet(viewsets.ModelViewSet):
+    queryset = TaxlotData.objects.all()
+    serializer_class = TaxlotDataSerializer
+    filter_class = TaxlotDataFilter
