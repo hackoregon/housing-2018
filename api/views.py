@@ -6,8 +6,8 @@ from django.db.models.expressions import RawSQL
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
-from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program, PermitData
-from api.serializers import JCHSDataSerializer, HudPitDataSerializer, HudHicDataSerializer, UrbanInstituteRentalCrisisDataSerializer, PolicySerializer, ProgramSerializer, PermitDataSerializer
+from api.models import JCHSData, HudPitData, HudHicData, UrbanInstituteRentalCrisisData, Policy, Program, PermitData, TaxlotData
+from api.serializers import JCHSDataSerializer, HudPitDataSerializer, HudHicDataSerializer, UrbanInstituteRentalCrisisDataSerializer, PolicySerializer, ProgramSerializer, PermitDataSerializer, TaxlotDataSerializer
 from django_filters import rest_framework as filters
 
 def is_valid_table(tbl_name):
@@ -232,3 +232,12 @@ class PermitDataViewSet(viewsets.ModelViewSet):
     serializer_class = PermitDataSerializer
     filter_class = PermitDataFilter
 
+class TaxlotDataFilter(filters.FilterSet):
+    class Meta:
+        model = TaxlotData
+        fields = ('total_value',)
+
+class TaxlotDataViewSet(viewsets.ModelViewSet):
+    queryset = TaxlotData.objects.all()
+    serializer_class = TaxlotDataSerializer
+    filter_class = TaxlotDataFilter

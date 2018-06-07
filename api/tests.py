@@ -19,7 +19,7 @@ class APIEndpoints(TestCase):
 
     def test_api_endpoint_status(self):
         response = self.client.get('/housing-affordability/api/')
-        datasets = ['harvardjchs','homelessness/pit','homelessness/hic','rentalcrisis','policies','programs','permits']
+        datasets = ['harvardjchs','homelessness/pit','homelessness/hic','rentalcrisis','policies','programs','permits','taxlots']
         endpoints = { v: f'http://testserver/housing-affordability/api/{v}/' for v in datasets } 
         with self.subTest('status_code'):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
