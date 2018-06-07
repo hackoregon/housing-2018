@@ -216,7 +216,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
 
 class PermitDataFilter(filters.FilterSet):
     new_class = filters.CharFilter(lookup_expr='iexact')
-    new_type = CharInFilter(lookup_expr='iexact', lookup_expr='in')
+    new_type = CharInFilter(name='new_type', lookup_expr='in')
     status = filters.CharFilter(lookup_expr='iexact')
     is_adu = filters.CharFilter(lookup_expr='iexact')
     property_address = filters.CharFilter(lookup_expr='icontains')
