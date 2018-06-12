@@ -18,4 +18,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('housing-affordability/', include('api.urls')),
+    path('housing-affordability/sandbox/', include('civic_sandbox.urls')),
 ]
