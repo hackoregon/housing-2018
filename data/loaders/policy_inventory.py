@@ -66,6 +66,7 @@ class ProgramImport(DjangoImport):
             except:
                 print(row['Policy_ID'])
                 continue
+
             body = {
                 'policy': policy,
                 'name': name,
@@ -73,7 +74,9 @@ class ProgramImport(DjangoImport):
                 'government_entity': row['Government_Entity'],
                 'year_implemented': time,
                 'link1': row['Link to program'] if pd.notnull(row['Link to program']) else None,
+                'link1_name': row['Link 1 Name'] if pd.notnull(row['Link 1 Name']) else None,
                 'link2': row['Link to program 2'] if pd.notnull(row['Link to program 2']) else None,
+                'link2_name': row['Link 2 Name'] if pd.notnull(row['Link 2 Name']) else None,
             }
             yield body
 
