@@ -2,7 +2,10 @@ import os
 import shutil
 import requests
 from django.contrib.gis.utils import LayerMapping
+from django.db.models.signals import pre_save
 from api.models import TaxlotData
+    
+years = ['2005','2007','2008','2009','2012','2013','2014','2015','2016']
 
 mapping = {
     'area': 'AREA',
@@ -30,39 +33,48 @@ mapping = {
     'county': 'COUNTY',
     'x_coord': 'X_COORD',
     'y_coord': 'Y_COORD',
-    'juris_city': 'JURIS_CITY',
-    'gis_acres': 'GIS_ACRES',
-    'state_class': 'STATECLASS',
-    'or_tax_lot': 'ORTAXLOT',
     'orig_ogc_f': 'orig_ogc_f',
-    'building_value_2011': 'BVAL_2011',
-    'land_value_2011': 'LVAL_2011',
-    'total_value_2011': 'TVAL_2011',
-    'percent_change_2011_2017': 'PCNTCHANGE',
+    'percent_change': 'PCNTCHANGE',
     'mpoly': 'MULTIPOLYGON',
 }
 
-def run(verbose=True):
-    try:
-        TMP_LOCATION = '/tmp/taxlots_2017v2011/'
-        if not os.path.isdir(TMP_LOCATION):
-            os.makedirs(TMP_LOCATION)
-            
-        for ext in ['shp','shx','dbf','prj','qpj']:
-            file_name = 'taxlots_2017v2011.{}'.format(ext)
-            file_loc = TMP_LOCATION + file_name
-            if not os.path.isfile(file_loc):
-                url = 'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/taxlots/{}'.format(file_name)
-                with open(file_loc, 'w') as f:
-                    f.write(requests.get(url).text)
+def run(verbose=False):
+    TaxlotData.objects.all().delete()
 
-        print(os.listdir(TMP_LOCATION))
+    for year in years:
+        # Override field settings to add in year
+        class YearLayerMapping(LayerMapping):
+            def feature_kwargs(self, feat):
+                kwargs = super().feature_kwargs(feat)
+                kwargs['year'] = year
+                return kwargs
 
-        TaxlotData.objects.all().delete()
-        lm = LayerMapping(TaxlotData, TMP_LOCATION + 'taxlots_2017v2011.shp', mapping, transform=False, encoding='iso-8859-1')
-        lm.save(strict=True, verbose=verbose)
+        try:
+            TMP_LOCATION = 'data/taxlots_{}/'.format(year)
+            if not os.path.isdir(TMP_LOCATION):
+                os.makedirs(TMP_LOCATION)
+                
+            for ext in ['shp','shx','dbf','prj','qpj']:
+                file_name = 'taxlots_Portland_sfr.{}'.format(ext)
+                file_loc = TMP_LOCATION + file_name
+                if not os.path.isfile(file_loc):
+                    url = 'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/taxlots/{}'.format(file_name)
+                    print("Downloading " + url)
+                    with open(file_loc, 'w') as f:
+                        f.write(requests.get(url).text)
+            print("Finished downloading all files.")
+            print(os.listdir(TMP_LOCATION))
 
-    finally:
-        if os.path.isdir(TMP_LOCATION): 
-            shutil.rmtree(TMP_LOCATION)
+            m = mapping.copy()
+            if year in ['2005']:
+                m.pop('owner_state')
+                m.pop('site_zip')
+
+            lm = YearLayerMapping(TaxlotData, TMP_LOCATION + 'taxlots_Portland_sfr.shp', m, transform=False, encoding='iso-8859-1')
+            lm.save(strict=True, verbose=verbose)
+
+        finally:
+            print("Not deleting taxlots files.")
+            #if os.path.isdir(TMP_LOCATION): 
+                #shutil.rmtree(TMP_LOCATION)
 
