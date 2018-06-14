@@ -242,10 +242,12 @@ class PermitDataFilter(filters.FilterSet):
     property_address = filters.CharFilter(lookup_expr='icontains')
     neighborhood = filters.CharFilter(lookup_expr='iexact')
     work_description = filters.CharFilter(lookup_expr='iexact')
+    year = filters.NumberFilter()
+    year_range = filters.RangeFilter(name='year')
 
     class Meta:
         model = PermitData
-        fields = ('new_class','new_type','status','is_adu','property_address','neighborhood','work_description','year')
+        fields = ('new_class','new_type','status','is_adu','property_address','neighborhood','work_description','year','year_range')
 
 class PermitDataViewSet(viewsets.ModelViewSet):
     queryset = PermitData.objects.all()
