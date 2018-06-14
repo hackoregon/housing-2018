@@ -51,4 +51,4 @@ class TaxlotDataSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = TaxlotData
         geo_field = 'mpoly'
-        fields = ('total_value',)
+        fields = ('year','percent_change',)
