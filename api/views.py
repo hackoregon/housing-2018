@@ -235,7 +235,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
     order_fields = '__all__'
 
 class PermitDataFilter(filters.FilterSet):
-    new_class = filters.CharFilter(lookup_expr='iexact')
+    new_class = CharInFilter(name='new_class', lookup_expr='in')
     new_type = CharInFilter(name='new_type', lookup_expr='in')
     status = filters.CharFilter(lookup_expr='iexact')
     is_adu = filters.CharFilter(lookup_expr='iexact')
@@ -253,9 +253,14 @@ class PermitDataViewSet(viewsets.ModelViewSet):
     filter_class = PermitDataFilter
 
 class TaxlotDataFilter(filters.FilterSet):
+    year = filters.NumberFilter()
+    year_range = filters.RangeFilter(name='year')
+    total_value = filters.RangeFilter()
+    percent_change = filters.RangeFilter()
+
     class Meta:
         model = TaxlotData
-        fields = ('total_value',)
+        fields = ('year','year_range','total_value','percent_change')
 
 class TaxlotDataViewSet(viewsets.ModelViewSet):
     queryset = TaxlotData.objects.all()
