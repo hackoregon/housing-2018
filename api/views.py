@@ -116,6 +116,13 @@ class JCHSDataFilter(FilterRankedQueryMixin, filters.FilterSet):
     order_keys = ('datatype', 'source')
     ignore_query = Q(datapoint='United States')
 
+    @property
+    def qs(self):
+        view = self.request.parser_context['view']
+        if view.action == 'meta':
+            return super(filters.FilterSet, self).qs
+        return super(FilterRankedQueryMixin, self).qs
+
     class Meta:
         model = JCHSData
         fields = ['datatype', 'datapoint', 'valuetype', 'source', 'date']
@@ -128,6 +135,8 @@ class JCHSDataViewSet(viewsets.ModelViewSet):
 
     @list_route()
     def meta(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+
         fields = request.data.get('fields') if request.data else request.query_params.get('fields')
         if fields is None:
             fields = ['datatype','datapoint','valuetype','source','date']
@@ -136,14 +145,10 @@ class JCHSDataViewSet(viewsets.ModelViewSet):
 
         results = {}
         for f in fields:
-            try:
-                clean_field = JCHSData._meta.get_field(f + '_clean')
-            except FieldDoesNotExist:
-                results[f] = self.queryset.values_list(f, flat=True).distinct().order_by(f)
-            else:
-                values = self.queryset.values_list(f, clean_field.name).distinct(f).order_by(f)
-                values = [ { 'value': v[0], 'value_clean': v[1] } for v in values ]
-                results[f] = values
+            f_name = f
+            if f == 'geography':
+                f = 'datapoint'
+            results[f_name] = queryset.values_list(f, flat=True).distinct().order_by(f)
 
         result = {
             'results': results
