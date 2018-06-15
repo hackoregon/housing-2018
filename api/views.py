@@ -19,7 +19,7 @@ def is_valid_table(tbl_name):
 # not sure if there is a better way to do this.
 class FilterRankedQueryMixin(object):
     @property
-    def qs(self):
+    def my_qs(self):
         """
         Override to nest the ranking query inside of the filters, limiting, and ordering in order to allow for a ranking to be given out of all items, not just those included in the filtering.
         """
@@ -120,8 +120,8 @@ class JCHSDataFilter(FilterRankedQueryMixin, filters.FilterSet):
     def qs(self):
         view = self.request.parser_context['view']
         if view.action == 'meta':
-            return super(filters.FilterSet, self).qs
-        return super(FilterRankedQueryMixin, self).qs
+            return super().qs
+        return self.my_qs
 
     class Meta:
         model = JCHSData
