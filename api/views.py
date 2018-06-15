@@ -204,6 +204,33 @@ class UrbanInstituteRentalCrisisDataViewSet(viewsets.ModelViewSet):
     filter_class = UrbanInstituteRentalCrisisDataFilter
     ordering_fields = '__all__'
 
+    @list_route()
+    def meta(self, request):
+        fields = request.data.get('fields') if request.data else request.query_params.get('fields')
+
+        if fields is None:
+            fields = ['county_name','state_name']
+        elif isinstance(fields, str):
+            fields = [fields]
+
+        results = {}
+        for f in fields:
+            if f == 'geography':
+                qs = self.queryset.values_list('county_name', 'state_name').distinct().order_by('state_name', 'county_name')
+                unique = {}
+                for c, s in qs:
+                    key = '{}, {}'.format(c, s)
+                    unique[key.lower()] = key
+                results[f] = unique.values()
+                continue
+            results[f] = self.queryset.values_list(f, flat=True).annotate(lower=Lower(f)).distinct().order_by(f)
+
+        result = {
+            'results': results
+        }
+
+        return Response(result)
+
 class PolicyFilter(filters.FilterSet):
     policy_id = filters.CharFilter(lookup_expr='iexact')
     policy_type = filters.CharFilter(name='policy_type_clean', lookup_expr='iexact')
