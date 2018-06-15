@@ -7,6 +7,13 @@ import pytest
 class JCHSDataTest(TestCase):
    pass 
 
+class RootEndpointsTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+    def test_list_200_response(self):
+        response = self.client.get('/housing-affordability/')
+        assert response.status_code == 200
+
 class APIEndpoints(TestCase):
     """ Tests for generic API endpoints """
 
