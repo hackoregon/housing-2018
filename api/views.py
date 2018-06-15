@@ -19,7 +19,7 @@ def is_valid_table(tbl_name):
 # not sure if there is a better way to do this.
 class FilterRankedQueryMixin(object):
     @property
-    def qs(self):
+    def my_qs(self):
         """
         Override to nest the ranking query inside of the filters, limiting, and ordering in order to allow for a ranking to be given out of all items, not just those included in the filtering.
         """
@@ -116,6 +116,13 @@ class JCHSDataFilter(FilterRankedQueryMixin, filters.FilterSet):
     order_keys = ('datatype', 'source')
     ignore_query = Q(datapoint='United States')
 
+    @property
+    def qs(self):
+        view = self.request.parser_context['view']
+        if view.action == 'meta':
+            return super().qs
+        return self.my_qs
+
     class Meta:
         model = JCHSData
         fields = ['datatype', 'datapoint', 'valuetype', 'source', 'date']
@@ -128,6 +135,8 @@ class JCHSDataViewSet(viewsets.ModelViewSet):
 
     @list_route()
     def meta(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+
         fields = request.data.get('fields') if request.data else request.query_params.get('fields')
         if fields is None:
             fields = ['datatype','datapoint','valuetype','source','date']
@@ -136,14 +145,10 @@ class JCHSDataViewSet(viewsets.ModelViewSet):
 
         results = {}
         for f in fields:
-            try:
-                clean_field = JCHSData._meta.get_field(f + '_clean')
-            except FieldDoesNotExist:
-                results[f] = self.queryset.values_list(f, flat=True).distinct().order_by(f)
-            else:
-                values = self.queryset.values_list(f, clean_field.name).distinct(f).order_by(f)
-                values = [ { 'value': v[0], 'value_clean': v[1] } for v in values ]
-                results[f] = values
+            f_name = f
+            if f == 'geography':
+                f = 'datapoint'
+            results[f_name] = queryset.values_list(f, flat=True).distinct().order_by(f)
 
         result = {
             'results': results
@@ -203,6 +208,33 @@ class UrbanInstituteRentalCrisisDataViewSet(viewsets.ModelViewSet):
     serializer_class = UrbanInstituteRentalCrisisDataSerializer
     filter_class = UrbanInstituteRentalCrisisDataFilter
     ordering_fields = '__all__'
+
+    @list_route()
+    def meta(self, request):
+        fields = request.data.get('fields') if request.data else request.query_params.get('fields')
+
+        if fields is None:
+            fields = ['county_name','state_name']
+        elif isinstance(fields, str):
+            fields = [fields]
+
+        results = {}
+        for f in fields:
+            if f == 'geography':
+                qs = self.queryset.values_list('county_name', 'state_name').distinct().order_by('state_name', 'county_name')
+                unique = {}
+                for c, s in qs:
+                    key = '{}, {}'.format(c, s)
+                    unique[key.lower()] = key
+                results[f] = unique.values()
+                continue
+            results[f] = self.queryset.values_list(f, flat=True).annotate(lower=Lower(f)).distinct().order_by(f)
+
+        result = {
+            'results': results
+        }
+
+        return Response(result)
 
 class PolicyFilter(filters.FilterSet):
     policy_id = filters.CharFilter(lookup_expr='iexact')
