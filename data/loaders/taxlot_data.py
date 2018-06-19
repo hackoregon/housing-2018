@@ -5,7 +5,7 @@ from django.contrib.gis.utils import LayerMapping
 from django.db.models.signals import pre_save
 from api.models import TaxlotData
     
-years = ['2005','2007','2008','2009','2012','2013','2014','2015','2016']
+years = ['2005','2006','2007','2008','2009','2010','2011','2012','2013','2014','2015','2016','2017']
 
 mapping = {
     'area': 'AREA',
@@ -66,7 +66,7 @@ def run(verbose=False):
             print(os.listdir(TMP_LOCATION))
 
             m = mapping.copy()
-            if year in ['2005']:
+            if year in ['2005','2006']:
                 m.pop('owner_state')
                 m.pop('site_zip')
 
