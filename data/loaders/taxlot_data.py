@@ -50,7 +50,7 @@ def run(verbose=False):
                 return kwargs
 
         try:
-            TMP_LOCATION = 'data/taxlots_{}/'.format(year)
+            TMP_LOCATION = '/data/taxlots/{}/'.format(year)
             if not os.path.isdir(TMP_LOCATION):
                 os.makedirs(TMP_LOCATION)
                 
@@ -58,10 +58,10 @@ def run(verbose=False):
                 file_name = 'taxlots_Portland_sfr.{}'.format(ext)
                 file_loc = TMP_LOCATION + file_name
                 if not os.path.isfile(file_loc):
-                    url = 'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/taxlots/{}'.format(file_name)
+                    url = 'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/taxlots/shapefiles/{}/{}'.format(year, file_name)
                     print("Downloading " + url)
-                    with open(file_loc, 'w') as f:
-                        f.write(requests.get(url).text)
+                    with open(file_loc, 'wb') as f:
+                        f.write(requests.get(url).content)
             print("Finished downloading all files.")
             print(os.listdir(TMP_LOCATION))
 
@@ -74,7 +74,7 @@ def run(verbose=False):
             lm.save(strict=True, verbose=verbose)
 
         finally:
-            print("Not deleting taxlots files.")
+            print("Not deleting downloaded files.")
             #if os.path.isdir(TMP_LOCATION): 
                 #shutil.rmtree(TMP_LOCATION)
 

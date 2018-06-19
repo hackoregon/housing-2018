@@ -233,10 +233,10 @@ def load_data():
 #    ]
 
     URLS = [
-        'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/2007-2017-HIC-Counts-by-CoC.XLSX',
-        'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/2007-2017-HIC-Counts-by-State.xlsx',
-        'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/2007-2017-PIT-Counts-by-CoC.XLSX',
-        'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/2007-2017-PIT-Counts-by-State.xlsx',
+        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/hud_homelessness/2007-2017-HIC-Counts-by-CoC.XLSX',
+        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/hud_homelessness/2007-2017-HIC-Counts-by-State.xlsx',
+        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/hud_homelessness/2007-2017-PIT-Counts-by-CoC.XLSX',
+        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/hud_homelessness/2007-2017-PIT-Counts-by-State.xlsx',
     ]
 
     imports = [

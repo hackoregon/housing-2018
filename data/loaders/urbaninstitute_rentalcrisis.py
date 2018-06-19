@@ -127,9 +127,9 @@ class UrbanInstituteImport(DjangoImport):
 
 def load_data():
     files = [
-        'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/HAI_map_2000.csv',
-        'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/HAI_map_2005-09.csv',
-        'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/HAI_map_2010-14.csv',
+        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/urbaninstitute/HAI_map_2000.csv',
+        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/urbaninstitute/HAI_map_2005-09.csv',
+        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/urbaninstitute/HAI_map_2010-14.csv',
     ]
 
     for f in files:

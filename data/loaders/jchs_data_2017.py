@@ -648,7 +648,7 @@ class ImportW18(DjangoImport):
 
 def load_data():
     #file_loc = 'http://www.jchs.harvard.edu/sites/jchs.harvard.edu/files/all_son_2017_tables_current_6_12_17.xlsx' 
-    file_loc = 'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/all_son_2017_tables_current_6_12_17.xlsx'
+    file_loc = 'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/all_son_2017_tables_current_6_12_17.xlsx'
 
     with pd.ExcelFile(file_loc) as xlsx:
         a1 = ImportA1(source='A-1', data_file=xlsx)
