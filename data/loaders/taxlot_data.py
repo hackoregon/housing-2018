@@ -5,7 +5,7 @@ from django.contrib.gis.utils import LayerMapping
 from django.db.models.signals import pre_save
 from api.models import TaxlotData
     
-years = ['2005','2007','2008','2009','2012','2013','2014','2015','2016']
+years = ['2005','2006','2007','2008','2009','2010','2011','2012','2013','2014','2015','2016','2017']
 
 mapping = {
     'area': 'AREA',
@@ -50,7 +50,7 @@ def run(verbose=False):
                 return kwargs
 
         try:
-            TMP_LOCATION = 'data/taxlots_{}/'.format(year)
+            TMP_LOCATION = '/data/taxlots/{}/'.format(year)
             if not os.path.isdir(TMP_LOCATION):
                 os.makedirs(TMP_LOCATION)
                 
@@ -58,15 +58,15 @@ def run(verbose=False):
                 file_name = 'taxlots_Portland_sfr.{}'.format(ext)
                 file_loc = TMP_LOCATION + file_name
                 if not os.path.isfile(file_loc):
-                    url = 'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/taxlots/{}'.format(file_name)
+                    url = 'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/taxlots/shapefiles/{}/{}'.format(year, file_name)
                     print("Downloading " + url)
-                    with open(file_loc, 'w') as f:
-                        f.write(requests.get(url).text)
+                    with open(file_loc, 'wb') as f:
+                        f.write(requests.get(url).content)
             print("Finished downloading all files.")
             print(os.listdir(TMP_LOCATION))
 
             m = mapping.copy()
-            if year in ['2005']:
+            if year in ['2005','2006']:
                 m.pop('owner_state')
                 m.pop('site_zip')
 
@@ -74,7 +74,7 @@ def run(verbose=False):
             lm.save(strict=True, verbose=verbose)
 
         finally:
-            print("Not deleting taxlots files.")
+            print("Not deleting downloaded files.")
             #if os.path.isdir(TMP_LOCATION): 
                 #shutil.rmtree(TMP_LOCATION)
 

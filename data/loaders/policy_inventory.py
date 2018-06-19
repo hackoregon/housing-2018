@@ -82,9 +82,10 @@ class ProgramImport(DjangoImport):
 
 
 def load_data():
-    policies = PolicyImport(file_loc='data/housing-framework.xlsx')
-    programs = ProgramImport(file_loc='data/housing-framework.xlsx')
+    with pd.ExcelFile('https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/housing-framework.xlsx') as xlsx:
+        policies = PolicyImport(file_loc=xlsx)
+        programs = ProgramImport(file_loc=xlsx)
 
-    policies.save()
-    programs.save()
+        policies.save()
+        programs.save()
     

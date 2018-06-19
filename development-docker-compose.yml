@@ -19,6 +19,7 @@ services:
     command: ./bin/development-docker-entrypoint.sh
     volumes:
       - .:/code
+      - data:/data
     ports:
       - 8000:8000
     depends_on:
@@ -32,3 +33,6 @@ services:
       - POSTGRES_PORT=${DEVELOPMENT_POSTGRES_PORT}
       - POSTGRES_PASSWORD=${DEVELOPMENT_POSTGRES_PASSWORD}
       - DJANGO_SECRET_KEY=${DEVELOPMENT_DJANGO_SECRET_KEY}
+
+volumes:
+  data:

@@ -1,7 +1,7 @@
 from django.contrib.gis.utils import LayerMapping
 from api.models import PermitData
 
-file_location = 'https://hackoregon-housingaffordability-2018.nyc3.digitaloceanspaces.com/Residential_Building_Permits.geojson.json'
+file_location = 'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/permits/Residential_Building_Permits.geojson.json'
 
 mapping = {
     'in_date': 'INDATE',
