@@ -65,7 +65,7 @@ class HudHicData(models.Model):
 class UrbanInstituteRentalCrisisManager(models.Manager):
     def with_rank(self):
         ranked = UrbanInstituteRentalCrisisData.objects.annotate(
-            rank=models.Window(expression=Rank(), partition_by=[models.F('year')], order_by=(models.F('aaa_units')/models.F('eli_renters')).asc()),
+            rank=models.Window(expression=Rank(), partition_by=[models.F('year')], order_by=(models.F('aaa_units')/models.F('eli_renters')).desc()),
             total=models.Window(expression=models.Count(['year']), partition_by=[models.F('year')])
         )
         
