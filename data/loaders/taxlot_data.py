@@ -4,6 +4,11 @@ import requests
 from django.contrib.gis.utils import LayerMapping
 from django.db.models.signals import pre_save
 from api.models import TaxlotData
+import boto3
+
+BUCKET_NAME = 'hacko-data-archive'
+KEY = '2018-housing-affordability/data/taxlots/shapefiles/'
+s3 = boto3.resource('s3')
     
 years = ['2005','2006','2007','2008','2009','2010','2011','2012','2013','2014','2015','2016','2017']
 
@@ -56,12 +61,11 @@ def run(verbose=False):
                 
             for ext in ['shp','shx','dbf','prj','qpj']:
                 file_name = 'taxlots_Portland_sfr.{}'.format(ext)
-                file_loc = TMP_LOCATION + file_name
-                if not os.path.isfile(file_loc):
-                    url = 'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/taxlots/shapefiles/{}/{}'.format(year, file_name)
-                    print("Downloading " + url)
-                    with open(file_loc, 'wb') as f:
-                        f.write(requests.get(url).content)
+                file_path = TMP_LOCATION + file_name
+                if not os.path.isfile(file_path):
+                    key = '{}/{}/{}'.format(KEY, year, file_name)
+                    s3.Bucket(BUCKET_NAME).download_file(key, file_path)
+                    print("Downloading " + key)
             print("Finished downloading all files.")
             print(os.listdir(TMP_LOCATION))
 

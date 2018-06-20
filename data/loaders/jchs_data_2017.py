@@ -9,6 +9,11 @@ from datetime import datetime
 from pytz import timezone
 from six.moves.urllib.request import urlopen
 from api.models import JCHSData
+import boto3
+
+BUCKET_NAME = 'hacko-data-archive'
+KEY = '2018-housing-affordability/data/all_son_2017_tables_current_6_12_17.xlsx'
+s3 = boto3.resource('s3')
 
 pacific = timezone('US/Pacific')
 date_fmt = "%Y-%m-%dT%H:%M:%S.000%z"
@@ -587,18 +592,21 @@ class ImportW16(DjangoImport):
 
         objects_to_save = []
 
+        ct = 0
         for ix, row in df.iterrows():
             if not self.is_valid_value(row['share']):
                 continue
-            obj = JCHSData(date=row['date'], source=row['source'], datatype='Share of Units by Real Rent Level,' + row['datatype'].split('Rent Level,')[-1], datapoint=row['datapoint'], value=row['share'], valuetype='percent')
-            objects_to_save.append(obj)
+            obj, created = JCHSData.objects.get_or_create(date=row['date'], source=row['source'], datatype='Share of Units by Real Rent Level,' + row['datatype'].split('Rent Level,')[-1], datapoint=row['datapoint'], valuetype='percent', defaults={ 'value': row['share'] })
+            if created:
+                ct += 1
 
             if not self.is_valid_value(row['change']):
                 continue
-            obj = JCHSData(date=row['date'], source=row['source'], datatype='Change in Share of Units by Real Rent Level, 2005-2015,' + row['datatype'].split('Rent Level,')[-1], datapoint=row['datapoint'], value=row['change'], valuetype='percentage points')
-            objects_to_save.append(obj)
+            obj, created = JCHSData.objects.get_or_create(date=row['date'], source=row['source'], datatype='Change in Share of Units by Real Rent Level, 2005-2015,' + row['datatype'].split('Rent Level,')[-1], datapoint=row['datapoint'], valuetype='percentage points', defaults={ 'value': row['change'] })
+            if created:
+                ct += 1
 
-        return len(JCHSData.objects.bulk_create(objects_to_save))
+        return ct
 
 # W-17
 class ImportW17(DjangoImport):
@@ -647,10 +655,11 @@ class ImportW18(DjangoImport):
                 yield body
 
 def load_data():
-    #file_loc = 'http://www.jchs.harvard.edu/sites/jchs.harvard.edu/files/all_son_2017_tables_current_6_12_17.xlsx' 
-    file_loc = 'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/all_son_2017_tables_current_6_12_17.xlsx'
+    file_path = '/data/all_son_2017_tables_current_6_12_17.xlsx'
+    if not os.path.isfile(file_path):
+        s3.Bucket(BUCKET_NAME ).download_file(KEY, file_path)
 
-    with pd.ExcelFile(file_loc) as xlsx:
+    with pd.ExcelFile(file_path) as xlsx:
         a1 = ImportA1(source='A-1', data_file=xlsx)
         a2 = ImportA2(source='A-2', data_file=xlsx)
         w1 = ImportW1(source='W-1', data_file=xlsx)
