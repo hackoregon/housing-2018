@@ -1,7 +1,7 @@
+import os
 from django.contrib.gis.utils import LayerMapping
 from api.models import PermitData
-
-file_location = 'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/permits/Residential_Building_Permits.geojson.json'
+import boto3
 
 mapping = {
     'in_date': 'INDATE',
@@ -33,7 +33,17 @@ mapping = {
 }
 
 def run(verbose=True):
+    BUCKET_NAME = 'hacko-data-archive'
+    KEY = '2018-housing-affordability/data/permits/'
+    s3 = boto3.resource('s3')
+
+    f = 'Residential_Building_Permits.geojson.json'
+    file_path = '/data/permits/{}'.format(f)
+    if not os.path.isfile(file_path):
+        key = KEY + f
+        s3.Bucket(BUCKET_NAME).download_file(key, file_path)
+
     PermitData.objects.all().delete()
-    lm = LayerMapping(PermitData, file_location, mapping, transform=False, encoding='iso-8859-1')
+    lm = LayerMapping(PermitData, file_path, mapping, transform=False, encoding='iso-8859-1')
     lm.save(strict=True, verbose=verbose)
     

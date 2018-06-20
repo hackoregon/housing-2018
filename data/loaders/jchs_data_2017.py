@@ -13,7 +13,6 @@ import boto3
 
 BUCKET_NAME = 'hacko-data-archive'
 KEY = '2018-housing-affordability/data/all_son_2017_tables_current_6_12_17.xlsx'
-
 s3 = boto3.resource('s3')
 
 pacific = timezone('US/Pacific')

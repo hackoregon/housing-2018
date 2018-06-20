@@ -1,6 +1,8 @@
 import pandas as pd
+import os
 from data.loaders.django_import import DjangoImport
 from api.models import Policy, Program
+import boto3
 
 class PolicyImport(DjangoImport):
     django_model = Policy
@@ -82,7 +84,17 @@ class ProgramImport(DjangoImport):
 
 
 def load_data():
-    with pd.ExcelFile('https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/housing-framework.xlsx') as xlsx:
+    BUCKET_NAME = 'hacko-data-archive'
+    KEY = '2018-housing-affordability/data/'
+    s3 = boto3.resource('s3')
+
+    f = 'housing-framework.xlsx'
+    file_path = '/data/{}'.format(f)
+    if not os.path.isfile(file_path):
+        key = KEY + f
+        s3.Bucket(BUCKET_NAME).download_file(key, file_path)
+
+    with pd.ExcelFile(file_path) as xlsx:
         policies = PolicyImport(file_loc=xlsx)
         programs = ProgramImport(file_loc=xlsx)
 

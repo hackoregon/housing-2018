@@ -1,5 +1,11 @@
 import pandas as pd
+import os
 from api.models import UrbanInstituteRentalCrisisData
+import boto3
+
+BUCKET_NAME = 'hacko-data-archive'
+KEY = '2018-housing-affordability/data/urbaninstitute/'
+s3 = boto3.resource('s3')
 
 class DjangoImport(object):
     django_model = None
@@ -127,12 +133,16 @@ class UrbanInstituteImport(DjangoImport):
 
 def load_data():
     files = [
-        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/urbaninstitute/HAI_map_2000.csv',
-        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/urbaninstitute/HAI_map_2005-09.csv',
-        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/urbaninstitute/HAI_map_2010-14.csv',
+        'HAI_map_2000.csv',
+        'HAI_map_2005-09.csv',
+        'HAI_map_2010-14.csv',
     ]
 
     for f in files:
-        i = UrbanInstituteImport(file_loc=f)
+        key = KEY + f
+        file_path = '/data/urbaninstitute/{}'.format(f)
+        if not os.path.isfile(file_path):
+            s3.Bucket(BUCKET_NAME).download_file(key, file_path)
+        i = UrbanInstituteImport(file_loc=file_path)
         i.save()
 

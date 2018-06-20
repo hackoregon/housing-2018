@@ -1,7 +1,13 @@
 import re
+import os
 from decimal import Decimal
 import pandas as pd
 from api.models import HudPitData, HudHicData
+import boto3
+
+BUCKET_NAME = 'hacko-data-archive'
+KEY = '2018-housing-affordability/data/hud_homelessness/'
+s3 = boto3.resource('s3')
 
 class DjangoImport(object):
     django_model = None
@@ -232,22 +238,28 @@ def load_data():
 #        'https://www.hudexchange.info/resources/documents/2007-2017-PIT-Counts-by-State.xlsx',
 #    ]
 
-    URLS = [
-        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/hud_homelessness/2007-2017-HIC-Counts-by-CoC.XLSX',
-        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/hud_homelessness/2007-2017-HIC-Counts-by-State.xlsx',
-        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/hud_homelessness/2007-2017-PIT-Counts-by-CoC.XLSX',
-        'https://s3-us-west-2.amazonaws.com/hacko-data-archive/2018-housing-affordability/data/hud_homelessness/2007-2017-PIT-Counts-by-State.xlsx',
+    files = [
+        '2007-2017-HIC-Counts-by-CoC.XLSX',
+        '2007-2017-HIC-Counts-by-State.xlsx',
+        '2007-2017-PIT-Counts-by-CoC.XLSX',
+        '2007-2017-PIT-Counts-by-State.xlsx',
     ]
 
     imports = [
-        Hic(URLS[0], geography='coc'),
-        Hic(URLS[1], geography='state'),
-        Pit(URLS[2], geography='coc'),
-        Pit(URLS[3], geography='state'),
+        Hic(files[0], geography='coc'),
+        Hic(files[1], geography='state'),
+        Pit(files[2], geography='coc'),
+        Pit(files[3], geography='state'),
     ]
     
     ct = 0
     for imp in imports:
+        f = imp.file_loc
+        file_path = '/data/hud_homelessness/{}'.format(f)
+        if not os.path.isfile(file_path):
+            key = KEY + f
+            s3.Bucket(BUCKET_NAME).download_file(key, file_path)
+        imp.file_loc = file_path
         imp.process_frame()
         distinct = []
         result = imp.save()
