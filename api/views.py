@@ -23,7 +23,6 @@ class FilterRankedQueryMixin(object):
         """
         Override to nest the ranking query inside of the filters, limiting, and ordering in order to allow for a ranking to be given out of all items, not just those included in the filtering.
         """
-
         try:
             order_mapping = self.order_mapping
             order_keys = self.order_keys
@@ -165,6 +164,13 @@ class HudPitDataFilter(FilterRankedQueryMixin, filters.FilterSet):
         model = HudPitData
         fields = ['datatype','datapoint','geography','year']
 
+    @property
+    def qs(self):
+        view = self.request.parser_context['view']
+        if view.action == 'meta':
+            return super().qs
+        return self.my_qs
+
 class HudPitDataViewSet(viewsets.ModelViewSet):            
     queryset = HudPitData.objects.all()
     serializer_class = HudPitDataSerializer
@@ -202,6 +208,13 @@ class UrbanInstituteRentalCrisisDataFilter(FilterRankedQueryMixin, filters.Filte
     class Meta:
         model = UrbanInstituteRentalCrisisData
         fields = '__all__'
+
+    @property
+    def qs(self):
+        view = self.request.parser_context['view']
+        if view.action == 'meta':
+            return super().qs
+        return self.my_qs
 
 class UrbanInstituteRentalCrisisDataViewSet(viewsets.ModelViewSet):            
     queryset = UrbanInstituteRentalCrisisData.objects.all()
