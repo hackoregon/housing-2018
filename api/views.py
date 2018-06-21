@@ -93,7 +93,7 @@ class FilterRankedQueryMixin(object):
                 try:
                     order = self.order_mapping[order_key]
                 except:
-                    #print('No mapping found for {}', order_key)
+                    #print('No mapping found for {}'.format(order_key))
                     order = 'asc'
                     
                 obj.rank = obj.desc_rank if order == 'desc' else obj.asc_rank
@@ -109,7 +109,7 @@ class JCHSDataFilter(FilterRankedQueryMixin, filters.FilterSet):
     source = filters.CharFilter(lookup_expr='iexact')
 
     order_mapping = {
-            ('Change in Share of Units by Real Rent Level, 2005–2015, Real Gross Rents Under $800', 'W-16'): 'desc',
+            ('Change in Share of Units by Real Rent Level, 2005-2015, Real Gross Rents Under $800', 'W-16'): 'desc',
             ('Change in Share of Units by Real Rent Level, 2005–2015, Real Gross Rents $2,000 or More', 'W-16'): 'desc',
     }
     order_keys = ('datatype', 'source')
