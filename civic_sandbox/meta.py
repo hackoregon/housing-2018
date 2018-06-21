@@ -10,9 +10,11 @@ permits_meta = {
       'name': 'New Structure Type',
     },
   },
-    'dates': {
-    'date_attribute': 'issue_date',
-    'date_granularity': 'year',
-    'default_date_filter': '2017',
+  'dates': {
+  'date_attribute': 'issue_date',
+  'date_granularity': 'year',
+  'default_date_filter': '2017',
+  'min_date': '1994',
+  'max_date': '2018',
     },
   }
