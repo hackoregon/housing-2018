@@ -11,7 +11,7 @@ from six.moves.urllib.request import urlopen
 from api.models import JCHSData
 import boto3
 
-BUCKET_NAME = 'hacko-data-archive'
+BUCKET_NAME = 'hacko-cdn'
 KEY = '2018-housing-affordability/data/all_son_2017_tables_current_6_12_17.xlsx'
 s3 = boto3.resource('s3')
 

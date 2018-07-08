@@ -3,7 +3,7 @@ import os
 from api.models import UrbanInstituteRentalCrisisData
 import boto3
 
-BUCKET_NAME = 'hacko-data-archive'
+BUCKET_NAME = 'hacko-cdn'
 KEY = '2018-housing-affordability/data/urbaninstitute/'
 s3 = boto3.resource('s3')
 

@@ -5,7 +5,7 @@ import pandas as pd
 from api.models import HudPitData, HudHicData
 import boto3
 
-BUCKET_NAME = 'hacko-data-archive'
+BUCKET_NAME = 'hacko-cdn'
 KEY = '2018-housing-affordability/data/hud_homelessness/'
 s3 = boto3.resource('s3')
 
