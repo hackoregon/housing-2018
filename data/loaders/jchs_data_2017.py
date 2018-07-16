@@ -52,7 +52,7 @@ class DjangoImport(object):
     def __init__(self, source, data_file):
         """
         Base class to import JCHS data from an Excel sheet into database via Django ORM.
-        
+
         Parameters:
             source: name of source sheet in Excel file
             data_file: pandas ExcelFile object that contains the sheets
@@ -61,16 +61,16 @@ class DjangoImport(object):
         self.df = None
         self.source = source
         self.data_file = data_file
-    
+
     def process_frame(self):
         """
         Process the dataframe created by pandas.read_excel into the desired format for import and set to self.df
         """
         raise NotImplemented("process_frame must be implemented by child class.")
-        
+
     def generate_objects(self):
         """
-        Generator function to create Django objects to save to the database. Takes the json generated from 
+        Generator function to create Django objects to save to the database. Takes the json generated from
         self.generate_json and creates objects out of it.
         """
         for body in self.generate_json():
@@ -82,14 +82,14 @@ class DjangoImport(object):
         Returns all objects that come from this particular import e.g. for sheet A-1 import it will return all objects with source A-1
         """
         return JCHSData.objects.filter(source=self.source)
-                
+
     def generate_json(self):
         raise NotImplemented("generate_json must be implemented by child class.")
 
     def get_base_frame(self, columns=None):
         # read sheet into dataframe
         return pd.read_excel(self.data_file, sheet_name=self.source, header=headers[self.source], index_col=0, usecols=columns)
-        
+
     def add_sections_to_index(self, delim=None):
         # set the proper index name and use the value pandas thought was the index name to add to the index values
         section = self.df.index.name
@@ -113,7 +113,7 @@ class DjangoImport(object):
                 idx[i] = val
                 self.df.index = idx
 
-        # drop rows where all values are empty    
+        # drop rows where all values are empty
         self.df = self.df.dropna(how='all')
 
     def post_process(self):
@@ -121,11 +121,11 @@ class DjangoImport(object):
         Optional task to perform after saving of data. For instance, to insert some calculated rows.
         """
         print('No post processing to be performed.')
-        
+
     def save(self, delete_existing=True, query=None):
         """
         Adds the dataframe to the database via the Django ORM using self.generate_objects to generate Django objects.
-        
+
         Parameters:
             delete_existing: option to delete the existing items for this import
             query: Django Q object filter of JCHSData objects to know what to delete before import. Default is everything with self.source.
@@ -134,7 +134,7 @@ class DjangoImport(object):
             self.process_frame()
         if self.df is None:
             raise Exception("self.df has not been set, nothing to add to database.")
-            
+
         if delete_existing:
             if query is None:
                 qs = self.get_queryset()
@@ -150,7 +150,7 @@ class DjangoImport(object):
         if pp_results:
             result_ct += pp_results
         return result_ct
-        
+
     def is_valid_value(self, val):
         if pd.isnull(val) or str(val).strip() in ['', '.', 'na']:
             return False
@@ -165,7 +165,7 @@ class ImportA1(DjangoImport):
         self.df.loc[:, (slice(None), 'Thousands', slice(None))] = self.df.loc[:, (slice(None), 'Thousands', slice(None))] * 1000
         self.df.loc[:, (slice(None), 'Millions of 2016 dollars', slice(None))] = self.df.loc[:, (slice(None), 'Millions of 2016 dollars', slice(None))] * 1000000
         self.df = self.df.dropna(how='all', subset=[('Permits','Thousands','Multifamily')])
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -189,7 +189,7 @@ class ImportA2(DjangoImport):
         self.df = self.get_base_frame()
         self.add_sections_to_index()
         self.df.index = [x.split(';')[0] + ', Income ' + ' '.join(x.split(';')[1:]) for x in self.df.index]
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -210,7 +210,7 @@ class ImportW1(DjangoImport):
         self.add_sections_to_index()
         self.df.index = [x.split(';')[0].split(':')[0].replace(' Neighborhoods', '') + ', ' + ' '.join(x.split(';')[1:]) + ' Neighborhoods' for x in self.df.index]
         self.df.dropna(subset=[('Number of Neighborhoods', 2015)], inplace=True)
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -252,7 +252,7 @@ class ImportW3(DjangoImport):
         self.df = self.get_base_frame(columns=5)
         self.df.dropna(how='all', inplace=True)
         self.df = self.df.loc[pd.notnull(self.df.index), :]
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -270,7 +270,7 @@ class ImportW4(DjangoImport):
         self.df = self.get_base_frame()
         self.df.dropna(how='all', inplace=True)
         self.df = self.df.loc[pd.notnull(self.df.index), :]
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -291,7 +291,7 @@ class ImportW5(DjangoImport):
         self.df = self.get_base_frame()
         self.df.index = ['All Households' if pd.isnull(x) else x for x in self.df.index]
         self.add_sections_to_index(delim=": ")
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -313,7 +313,7 @@ class ImportW6(DjangoImport):
     def process_frame(self):
         self.df = self.get_base_frame()
         self.add_sections_to_index(delim=": ")
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -338,7 +338,7 @@ class ImportW7(DjangoImport):
         self.df = self.get_base_frame()
         # remove \n from columns headers
         self.df = self.df.rename(columns=lambda x: x.replace('\n', '').strip())
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -365,7 +365,7 @@ class ImportW8(DjangoImport):
     def process_frame(self):
         self.df = self.get_base_frame(columns=[1,2,3,4,5,6,7,8,9])
         self.df.dropna(how='all', inplace=True)
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -388,7 +388,7 @@ class ImportW9(DjangoImport):
     def process_frame(self):
         self.df = self.get_base_frame()
         self.df.dropna(how='all', inplace=True)
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -407,7 +407,7 @@ class ImportW10(DjangoImport):
     def process_frame(self):
         self.df = self.get_base_frame()
         self.df.dropna(how='all', inplace=True)
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -432,7 +432,7 @@ class ImportW11(DjangoImport):
     def process_frame(self):
         self.df = self.get_base_frame()
         self.df.dropna(how='all', inplace=True)
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -451,7 +451,7 @@ class ImportW12(DjangoImport):
     def process_frame(self):
         self.df = self.get_base_frame()
         self.df.dropna(how='all', inplace=True)
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -470,7 +470,7 @@ class ImportW13(DjangoImport):
     def process_frame(self):
         self.df = self.get_base_frame()
         self.df.dropna(how='all', inplace=True)
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -495,7 +495,7 @@ class ImportW14(DjangoImport):
     def process_frame(self):
         self.df = self.get_base_frame()
         self.df.dropna(how='all', inplace=True)
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -518,7 +518,7 @@ class ImportW15(DjangoImport):
     def process_frame(self):
         self.df = self.get_base_frame()
         self.df.dropna(how='all', inplace=True)
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -543,7 +543,7 @@ class ImportW16(DjangoImport):
         # remove \n from columns headers
         self.df = self.df.rename(columns=lambda x: x.replace('\n', ' ').strip())
         self.df.set_index([('Metropolitan Area Name', 'Unnamed: 1_level_1')], append=True, inplace=True)
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
             for ser_ix, val in row.iteritems():
@@ -565,8 +565,8 @@ class ImportW16(DjangoImport):
                     raise Exception("No value_type found.")
 
                 if key in ['Share of Units by Real Rent Level','Estimated Number of Renter Households by Rent Level','Change in Share of Units by Real Rent Level, 2005–2015']:
-                    key = '{}, Real Gross Rents {}'.format(key, ser_ix[1])                
-                    
+                    key = '{}, Real Gross Rents {}'.format(key, ser_ix[1])
+
                 time = datetime(ix[0], 1, 1, tzinfo=pytz.utc)
                 body = { 'date': time.astimezone(pacific), 'source': self.source, 'datatype': key, 'datapoint': dp, 'value': val, 'valuetype': value_type }
                 yield body
@@ -587,7 +587,7 @@ class ImportW16(DjangoImport):
             except KeyError:
                 prev = decimal.Decimal(np.NaN)
             return row['share'] - prev
-            
+
         df.loc[(slice(None), slice(None), '2015-01-01'), 'change'] = df.loc[(slice(None), slice(None), '2015-01-01'), :].apply(get_change, axis=1)
 
         objects_to_save = []
@@ -616,7 +616,7 @@ class ImportW17(DjangoImport):
         # remove \n from columns headers
         self.df = self.df.rename(columns=lambda x: x.replace('\n', ' ').strip())
         self.df.set_index(['Continuum of Care'], append=True, inplace=True)
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 
@@ -636,7 +636,7 @@ class ImportW18(DjangoImport):
         self.df.dropna(how='all', inplace=True)
         # remove \n from columns headers
         self.df = self.df.rename(columns=lambda x: x.replace('\n', ' ').strip())
-        
+
     def generate_json(self):
         for ix, row in self.df.iterrows():
 

@@ -6,8 +6,8 @@ from data.loaders.permit_data import run as load_permit_data
 from data.loaders.taxlot_data import run as load_taxlot_data
 
 load_jchs_data()
-load_hud_data()
-load_urbaninstitute_data()
-load_policy_data()
-load_permit_data()
-load_taxlot_data()
+# load_hud_data()
+# load_urbaninstitute_data()
+# load_policy_data()
+# load_permit_data()
+# load_taxlot_data()

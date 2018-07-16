@@ -15,7 +15,7 @@ class DjangoImport(object):
     def __init__(self, file_loc, geography):
         """
         Base class to import HUD Homelessness data from an Excel sheet into database via Django ORM.
-        
+
         Parameters:
             source: name of source sheet in Excel file
             file_loc: pandas ExcelFile object that contains the sheets
@@ -25,16 +25,16 @@ class DjangoImport(object):
         self.df = None
         self.file_loc = file_loc
         self.geography = geography
-    
+
     def process_frame(self):
         """
         Process the dataframe created by pandas.read_excel into the desired format for import and set to self.df
         """
         raise NotImplementedError("process_frame must be implemented by child class.")
-        
+
     def generate_objects(self):
         """
-        Generator function to create Django objects to save to the database. Takes the json generated from 
+        Generator function to create Django objects to save to the database. Takes the json generated from
         self.generate_json and creates objects out of it.
         """
         for body in self.generate_json():
@@ -46,14 +46,14 @@ class DjangoImport(object):
         Returns all objects that come from this particular import
         """
         return self.django_model.objects.filter(geography=self.geography)
-                
+
     def generate_json(self):
         raise NotImplementedError("generate_json must be implemented by child class.")
 
     def save(self, delete_existing=True, query=None):
         """
         Adds the dataframe to the database via the Django ORM using self.generate_objects to generate Django objects.
-        
+
         Parameters:
             delete_existing: option to delete the existing items for this import
             query: Django Q object filter of JCHSData objects to know what to delete before import. Default is everything with self.source.
@@ -62,7 +62,7 @@ class DjangoImport(object):
             self.process_frame()
         if self.df is None:
             raise Exception("self.df has not been set, nothing to add to database.")
-            
+
         if delete_existing:
             if query is None:
                 qs = self.get_queryset()
@@ -73,9 +73,9 @@ class DjangoImport(object):
 
         results = self.django_model.objects.bulk_create(self.generate_objects(), batch_size=10000)
         return len(results)
-        
+
     def is_valid_value(self, val):
-        try: 
+        try:
             val = val.replace('%', '')
         except:
             pass
@@ -251,13 +251,15 @@ def load_data():
         Pit(files[2], geography='coc'),
         Pit(files[3], geography='state'),
     ]
-    
+
     ct = 0
     for imp in imports:
         f = imp.file_loc
         file_path = '/data/hud_homelessness/{}'.format(f)
         if not os.path.isfile(file_path):
             key = KEY + f
+            if not os.path.exists('/data/hud_homelessness'):
+                os.mkdir('/data/hud_homelessness')
             s3.Bucket(BUCKET_NAME).download_file(key, file_path)
         imp.file_loc = file_path
         imp.process_frame()

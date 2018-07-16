@@ -41,9 +41,11 @@ def run(verbose=True):
     file_path = '/data/permits/{}'.format(f)
     if not os.path.isfile(file_path):
         key = KEY + f
+        if not os.path.exists('/data/permits'):
+                os.mkdir('/data/permits')
         s3.Bucket(BUCKET_NAME).download_file(key, file_path)
 
     PermitData.objects.all().delete()
     lm = LayerMapping(PermitData, file_path, mapping, transform=False, encoding='iso-8859-1')
     lm.save(strict=True, verbose=verbose)
-    
+

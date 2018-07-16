@@ -13,7 +13,7 @@ class DjangoImport(object):
     def __init__(self, file_loc):
         """
         Base class to import HUD Homelessness data from an Excel sheet into database via Django ORM.
-        
+
         Parameters:
             source: name of source sheet in Excel file
             file_loc: pandas ExcelFile object that contains the sheets
@@ -30,16 +30,16 @@ class DjangoImport(object):
             raise Exception('No valid year found in file name ' + file_loc)
 
         self.year = year
-    
+
     def process_frame(self):
         """
         Process the dataframe created by pandas.read_excel into the desired format for import and set to self.df
         """
         raise NotImplementedError("process_frame must be implemented by child class.")
-        
+
     def generate_objects(self):
         """
-        Generator function to create Django objects to save to the database. Takes the json generated from 
+        Generator function to create Django objects to save to the database. Takes the json generated from
         self.generate_json and creates objects out of it.
         """
         for body in self.generate_json():
@@ -51,14 +51,14 @@ class DjangoImport(object):
         Returns all objects that come from this particular import e.g. for sheet A-1 import it will return all objects with source A-1
         """
         return self.django_model.objects.filter(year=self.year)
-                
+
     def generate_json(self):
         raise NotImplementedError("generate_json must be implemented by child class.")
 
     def save(self, delete_existing=True, query=None):
         """
         Adds the dataframe to the database via the Django ORM using self.generate_objects to generate Django objects.
-        
+
         Parameters:
             delete_existing: option to delete the existing items for this import
             query: Django Q object filter of JCHSData objects to know what to delete before import. Default is everything with self.source.
@@ -67,7 +67,7 @@ class DjangoImport(object):
             self.process_frame()
         if self.df is None:
             raise Exception("self.df has not been set, nothing to add to database.")
-            
+
         if delete_existing:
             if query is None:
                 qs = self.get_queryset()
@@ -78,7 +78,7 @@ class DjangoImport(object):
 
         results = self.django_model.objects.bulk_create(self.generate_objects(), batch_size=10000)
         return len(results)
-        
+
     def is_valid_value(self, val):
         try:
             d = Decimal(val)
@@ -112,17 +112,17 @@ class UrbanInstituteImport(DjangoImport):
             county_name = row['countyname']
             if not county_name.lower().endswith('county'):
                 county_name = county_name + ' County'
-                
+
             body = {
                 'year': self.year,
                 'eli_limit': eli_limit if pd.notnull(eli_limit) else None,
                 'county_fips': row['county'],
                 'county_name': county_name,
-                'state_name': row['state_name'], 
+                'state_name': row['state_name'],
                 'is_state_data': state_flag,
-                'eli_renters': eli_renters if pd.notnull(eli_renters) else None, 
+                'eli_renters': eli_renters if pd.notnull(eli_renters) else None,
                 'aaa_units': aaa_units if pd.notnull(aaa_units) else None,
-                'noasst_units': noasst_units if pd.notnull(noasst_units) else None, 
+                'noasst_units': noasst_units if pd.notnull(noasst_units) else None,
                 'hud_units': hud_units if pd.notnull(hud_units) else None,
                 'usda_units': usda_units if pd.notnull(usda_units) else None,
                 'no_hud_units': no_hud_units if pd.notnull(no_hud_units) else None,
@@ -142,6 +142,8 @@ def load_data():
         key = KEY + f
         file_path = '/data/urbaninstitute/{}'.format(f)
         if not os.path.isfile(file_path):
+            if not os.path.exists('/data/urbaninstitute'):
+                os.mkdir('/data/urbaninstitute')
             s3.Bucket(BUCKET_NAME).download_file(key, file_path)
         i = UrbanInstituteImport(file_loc=file_path)
         i.save()
