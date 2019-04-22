@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
   gdal-bin \
   libproj-dev \
   postgresql-client \
+  jq  \
 && rm -rf /var/lib/apt/lists/*
 
 COPY requirements/*.txt /code/
