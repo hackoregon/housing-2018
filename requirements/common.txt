@@ -14,7 +14,7 @@ whitenoise==4.0b4
 django-autoslug-iplweb==1.9.4.dev0
 
 # DRF
-djangorestframework==3.7.7
+djangorestframework==3.9.1
 
 # Django filters
 django-filter==1.1.0
