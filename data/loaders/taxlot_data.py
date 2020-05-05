@@ -6,7 +6,7 @@ from django.db.models.signals import pre_save
 from api.models import TaxlotData
 import boto3
 
-BUCKET_NAME = 'hacko-data-archive'
+BUCKET_NAME = 'hacko-cdn'
 KEY = '2018-housing-affordability/data/taxlots/shapefiles/'
 s3 = boto3.resource('s3')
     

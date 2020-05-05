@@ -33,7 +33,7 @@ mapping = {
 }
 
 def run(verbose=True):
-    BUCKET_NAME = 'hacko-data-archive'
+    BUCKET_NAME = 'hacko-cdn'
     KEY = '2018-housing-affordability/data/permits/'
     s3 = boto3.resource('s3')
 

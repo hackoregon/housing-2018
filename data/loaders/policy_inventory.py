@@ -84,7 +84,7 @@ class ProgramImport(DjangoImport):
 
 
 def load_data():
-    BUCKET_NAME = 'hacko-data-archive'
+    BUCKET_NAME = 'hacko-cdn'
     KEY = '2018-housing-affordability/data/'
     s3 = boto3.resource('s3')
 
